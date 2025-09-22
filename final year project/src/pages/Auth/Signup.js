@@ -1,0 +1,231 @@
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiGithub, FiLinkedin } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { AppContext } from '../../context/AppContext';
+import Button from '../../components/Button/Button';
+import { toast } from 'react-hot-toast';
+import './Auth.css';
+
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useContext(AppContext);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock user data
+      const userData = {
+        id: '1',
+        name: formData.name,
+        email: formData.email,
+        avatar: '/default-avatar.png',
+        joinedDate: new Date().toISOString()
+      };
+
+      login(userData);
+      navigate('/dashboard');
+      toast.success('Account created successfully!');
+    } catch (error) {
+      toast.error('Signup failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = (provider) => {
+    toast.success(`${provider} signup coming soon!`);
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        <motion.div 
+          className="auth-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Header */}
+          <div className="auth-header">
+            <Link to="/" className="auth-logo">
+              <span className="logo-text">HackTrack</span>
+              <span className="logo-location">Mumbai</span>
+            </Link>
+            <h1>Join Mumbai's Tech Community</h1>
+            <p>Connect with 5000+ students and professionals in India's tech capital</p>
+          </div>
+
+          {/* Social Login */}
+          <div className="social-login">
+            <button 
+              className="social-btn google"
+              onClick={() => handleSocialLogin('Google')}
+            >
+              <FcGoogle size={20} />
+              Sign up with Google
+            </button>
+            
+            <button 
+              className="social-btn github"
+              onClick={() => handleSocialLogin('GitHub')}
+            >
+              <FiGithub size={20} />
+              Sign up with GitHub
+            </button>
+            
+            <button 
+              className="social-btn linkedin"
+              onClick={() => handleSocialLogin('LinkedIn')}
+            >
+              <FiLinkedin size={20} />
+              Sign up with LinkedIn
+            </button>
+          </div>
+
+          <div className="divider">
+            <span>or</span>
+          </div>
+
+          {/* Signup Form */}
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Full Name</label>
+              <div className="input-wrapper">
+                <FiUser className="input-icon" />
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <div className="input-wrapper">
+                <FiMail className="input-icon" />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <div className="input-wrapper">
+                <FiLock className="input-icon" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Create a password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <div className="input-wrapper">
+                <FiLock className="input-icon" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-options">
+              <label className="checkbox-label">
+                <input type="checkbox" required />
+                <span className="checkmark"></span>
+                I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
+              </label>
+            </div>
+
+            <Button 
+              type="submit" 
+              loading={isLoading}
+              fullWidth 
+              size="large"
+            >
+              Create Account
+            </Button>
+          </form>
+
+          {/* Footer */}
+          <div className="auth-footer">
+            <p>Already have an account? <Link to="/login">Sign in here</Link></p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;

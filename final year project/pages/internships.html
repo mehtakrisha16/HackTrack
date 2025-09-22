@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internships - HackTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 8rem 0 4rem;
+            color: white;
+            text-align: center;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--gray-200);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--gray-600);
+            margin-right: 1rem;
+        }
+
+        .internship-card {
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .salary-range {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+        }
+
+        .application-deadline {
+            background: var(--error);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .company-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--warning);
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .skill-tag {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        @media (max-width: 768px) {
+            .company-logo {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">HackTrack</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="hackathons.html" class="nav-link" data-page="hackathons">Hackathons</a></li>
+                <li><a href="internships.html" class="nav-link active" data-page="internships">Internships</a></li>
+                <li><a href="events.html" class="nav-link" data-page="events">Events</a></li>
+                <li><a href="dashboard.html" class="nav-link" data-page="dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+                <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="text-4xl font-bold mb-4">Find Your Dream Internship</h1>
+            <p class="text-lg mb-6">Discover internship opportunities at top companies worldwide</p>
+            <div class="flex justify-center gap-4">
+                <span class="badge badge-primary">2,000+ Active Positions</span>
+                <span class="badge badge-success">500+ Companies</span>
+                <span class="badge badge-warning">Remote & On-site</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section bg-gray-50 py-8">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Search Internships</label>
+                    <input type="text" class="form-input search-input" placeholder="Search by role, company, or skills...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Domain</label>
+                    <select class="form-select filter-select" data-filter="category">
+                        <option value="all">All Domains</option>
+                        <option value="software">Software Engineering</option>
+                        <option value="data">Data Science</option>
+                        <option value="design">UI/UX Design</option>
+                        <option value="marketing">Digital Marketing</option>
+                        <option value="product">Product Management</option>
+                        <option value="finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <select class="form-select filter-select" data-filter="location">
+                        <option value="all">All Locations</option>
+                        <option value="remote">Remote</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="international">International</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <select class="form-select filter-select" data-filter="duration">
+                        <option value="all">Any Duration</option>
+                        <option value="2-months">2-3 Months</option>
+                        <option value="6-months">6 Months</option>
+                        <option value="1-year">1 Year</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <span class="results-count text-gray-600">156 internships found</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Internships Grid -->
+    <section class="py-8">
+        <div class="container">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Internship Card 1 -->
+                <div class="event-card card internship-card" data-category="software" data-location="bangalore" data-duration="6-months">
+                    <div class="card-body">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex">
+                                <div class="company-logo">
+                                    <i class="fab fa-google"></i>
+                                </div>
+                                <div>
+                                    <h3 class="event-title text-2xl font-bold mb-1">Software Engineering Intern</h3>
+                                    <p class="event-organization text-lg text-gray-600 mb-2">Google</p>
+                                    <div class="company-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <span class="text-gray-600 ml-1">4.9 (2.1k reviews)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-actions flex gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="intern1">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="intern1">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="event-description text-gray-700 mb-4">Join our team to work on cutting-edge projects that impact billions of users. You'll collaborate with world-class engineers and contribute to products used globally.</p>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Software Engineering</span>
+                            <span class="badge badge-secondary">Bangalore, India</span>
+                            <span class="badge badge-warning">6 Months</span>
+                            <span class="salary-range">₹80,000/month</span>
+                            <span class="application-deadline">7 days left</span>
+                        </div>
+
+                        <div class="skills-list">
+                            <span class="skill-tag">Python</span>
+                            <span class="skill-tag">Java</span>
+                            <span class="skill-tag">Cloud Computing</span>
+                            <span class="skill-tag">Algorithms</span>
+                            <span class="skill-tag">System Design</span>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Starts: June 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> Full-time
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 50 openings
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internship Card 2 -->
+                <div class="event-card card internship-card" data-category="data" data-location="remote" data-duration="2-months">
+                    <div class="card-body">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex">
+                                <div class="company-logo">
+                                    <i class="fab fa-microsoft"></i>
+                                </div>
+                                <div>
+                                    <h3 class="event-title text-2xl font-bold mb-1">Data Science Intern</h3>
+                                    <p class="event-organization text-lg text-gray-600 mb-2">Microsoft</p>
+                                    <div class="company-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <span class="text-gray-600 ml-1">4.7 (1.8k reviews)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-actions flex gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="intern2">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="intern2">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="event-description text-gray-700 mb-4">Work with our AI research team to develop machine learning models and analyze large datasets. Remote-first position with flexible hours.</p>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Data Science</span>
+                            <span class="badge badge-secondary">Remote</span>
+                            <span class="badge badge-warning">3 Months</span>
+                            <span class="salary-range">$4,000/month</span>
+                            <span class="application-deadline">12 days left</span>
+                        </div>
+
+                        <div class="skills-list">
+                            <span class="skill-tag">Python</span>
+                            <span class="skill-tag">Machine Learning</span>
+                            <span class="skill-tag">SQL</span>
+                            <span class="skill-tag">TensorFlow</span>
+                            <span class="skill-tag">Statistics</span>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Starts: July 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> Part-time
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 20 openings
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internship Card 3 -->
+                <div class="event-card card internship-card" data-category="design" data-location="mumbai" data-duration="6-months">
+                    <div class="card-body">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex">
+                                <div class="company-logo">
+                                    <i class="fab fa-airbnb"></i>
+                                </div>
+                                <div>
+                                    <h3 class="event-title text-2xl font-bold mb-1">UI/UX Design Intern</h3>
+                                    <p class="event-organization text-lg text-gray-600 mb-2">Airbnb</p>
+                                    <div class="company-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                        <span class="text-gray-600 ml-1">4.6 (950 reviews)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-actions flex gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="intern3">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="intern3">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="event-description text-gray-700 mb-4">Design beautiful and intuitive user experiences for millions of travelers worldwide. Work closely with product managers and engineers.</p>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">UI/UX Design</span>
+                            <span class="badge badge-secondary">Mumbai, India</span>
+                            <span class="badge badge-warning">6 Months</span>
+                            <span class="salary-range">₹60,000/month</span>
+                            <span class="application-deadline">5 days left</span>
+                        </div>
+
+                        <div class="skills-list">
+                            <span class="skill-tag">Figma</span>
+                            <span class="skill-tag">User Research</span>
+                            <span class="skill-tag">Prototyping</span>
+                            <span class="skill-tag">Design Systems</span>
+                            <span class="skill-tag">Adobe Creative Suite</span>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Starts: May 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> Full-time
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 10 openings
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internship Card 4 -->
+                <div class="event-card card internship-card" data-category="product" data-location="delhi" data-duration="1-year">
+                    <div class="card-body">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex">
+                                <div class="company-logo">
+                                    <i class="fab fa-amazon"></i>
+                                </div>
+                                <div>
+                                    <h3 class="event-title text-2xl font-bold mb-1">Product Management Intern</h3>
+                                    <p class="event-organization text-lg text-gray-600 mb-2">Amazon</p>
+                                    <div class="company-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <span class="text-gray-600 ml-1">4.3 (3.2k reviews)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="event-actions flex gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="intern4">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="intern4">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="event-description text-gray-700 mb-4">Drive product strategy and execution for one of Amazon's key products. Work with cross-functional teams to deliver customer-centric solutions.</p>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Product Management</span>
+                            <span class="badge badge-secondary">Delhi, India</span>
+                            <span class="badge badge-warning">12 Months</span>
+                            <span class="salary-range">₹1,20,000/month</span>
+                            <span class="application-deadline">20 days left</span>
+                        </div>
+
+                        <div class="skills-list">
+                            <span class="skill-tag">Product Strategy</span>
+                            <span class="skill-tag">Analytics</span>
+                            <span class="skill-tag">A/B Testing</span>
+                            <span class="skill-tag">SQL</span>
+                            <span class="skill-tag">Market Research</span>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Starts: August 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> Full-time
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 15 openings
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button class="btn btn-outline btn-lg">
+                    Load More Internships <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-8 p-8">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">HackTrack</h4>
+                    <p class="text-gray-400 mb-4">Your ultimate hub for discovering hackathons, internships, and college events all in one place.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="hackathons.html" class="text-gray-400 hover:text-white">Hackathons</a></li>
+                        <li><a href="internships.html" class="text-gray-400 hover:text-white">Internships</a></li>
+                        <li><a href="events.html" class="text-gray-400 hover:text-white">College Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Workshops</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Submit Event</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Stay updated with the latest opportunities</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="form-input rounded-r-none">
+                        <button class="btn btn-primary rounded-l-none">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 pb-4 text-center">
+                <p class="text-gray-400">&copy; 2025 HackTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

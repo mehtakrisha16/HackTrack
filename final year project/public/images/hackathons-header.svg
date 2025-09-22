@@ -1,0 +1,53 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hackathonBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f7931e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="codeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="300" fill="url(#hackathonBg)"/>
+  
+  <!-- Mumbai Skyline Silhouette -->
+  <g opacity="0.3">
+    <rect x="100" y="150" width="40" height="150" fill="rgba(0,0,0,0.2)" rx="2"/>
+    <rect x="160" y="120" width="50" height="180" fill="rgba(0,0,0,0.2)" rx="2"/>
+    <rect x="230" y="140" width="45" height="160" fill="rgba(0,0,0,0.2)" rx="2"/>
+    <rect x="300" y="100" width="60" height="200" fill="rgba(0,0,0,0.2)" rx="2"/>
+    <rect x="380" y="130" width="40" height="170" fill="rgba(0,0,0,0.2)" rx="2"/>
+    <rect x="450" y="110" width="55" height="190" fill="rgba(0,0,0,0.2)" rx="2"/>
+  </g>
+  
+  <!-- Floating Code Elements -->
+  <g opacity="0.6" fill="white">
+    <text x="200" y="80" font-family="monospace" font-size="20" font-weight="bold">{'{'}</text>
+    <text x="300" y="60" font-family="monospace" font-size="16">function hack()</text>
+    <text x="500" y="70" font-family="monospace" font-size="18">&lt;/&gt;</text>
+    <text x="700" y="90" font-family="monospace" font-size="14">const innovation = true;</text>
+    <text x="900" y="60" font-family="monospace" font-size="20">{'}'}</text>
+    <text x="1000" y="80" font-family="monospace" font-size="16">console.log('Mumbai');</text>
+  </g>
+  
+  <!-- Tech Icons -->
+  <g fill="white" opacity="0.8">
+    <circle cx="800" cy="120" r="25" fill="rgba(255,255,255,0.1)"/>
+    <text x="800" y="130" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">⚡</text>
+    
+    <circle cx="950" cy="140" r="25" fill="rgba(255,255,255,0.1)"/>
+    <text x="950" y="150" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">🚀</text>
+    
+    <circle cx="1100" cy="110" r="25" fill="rgba(255,255,255,0.1)"/>
+    <text x="1100" y="120" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">💡</text>
+  </g>
+  
+  <!-- Hackathon Badge -->
+  <rect x="50" y="200" width="200" height="60" fill="rgba(255,255,255,0.9)" rx="8"/>
+  <text x="150" y="225" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#ff6b35">MUMBAI HACKATHONS</text>
+  <text x="150" y="245" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#64748b">Build • Innovate • Win</text>
+</svg>

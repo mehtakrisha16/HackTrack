@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HackTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: var(--primary-gradient);
+            padding: 6rem 0 3rem;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: -2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gray-800);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .dashboard-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-action-card {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .quick-action-card:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-time {
+            color: var(--gray-500);
+            font-size: var(--font-size-sm);
+        }
+
+        .saved-event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .application-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .status-applied {
+            background: var(--info);
+            color: white;
+        }
+
+        .status-accepted {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-pending {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-rejected {
+            background: var(--error);
+            color: white;
+        }
+
+        .upcoming-deadline {
+            border-left: 4px solid var(--error);
+            background: #fef2f2;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">HackTrack</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="hackathons.html" class="nav-link" data-page="hackathons">Hackathons</a></li>
+                <li><a href="internships.html" class="nav-link" data-page="internships">Internships</a></li>
+                <li><a href="events.html" class="nav-link" data-page="events">Events</a></li>
+                <li><a href="dashboard.html" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="flex items-center gap-2">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" 
+                         alt="Profile" class="w-8 h-8 rounded-full">
+                    <span class="text-sm font-medium">John Doe</span>
+                </div>
+            </div>
+            <button class="nav-toggle" id="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div class="container">
+            <h1 class="text-4xl font-bold mb-2">Welcome back, John!</h1>
+            <p class="text-lg opacity-90">Track your applications and discover new opportunities</p>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-8">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary text-white">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Saved Events</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-success text-white">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Applications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning text-white">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-error text-white">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Notifications</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="text-2xl font-bold">Quick Actions</h2>
+            </div>
+            <div class="quick-action-grid">
+                <div class="quick-action-card">
+                    <i class="fas fa-search text-2xl text-primary mb-3"></i>
+                    <h3 class="font-semibold mb-2">Find Events</h3>
+                    <p class="text-sm text-gray-600">Discover new hackathons and events</p>
+                </div>
+                <div class="quick-action-card">
+                    <i class="fas fa-briefcase text-2xl text-success mb-3"></i>
+                    <h3 class="font-semibold mb-2">Browse Internships</h3>
+                    <p class="text-sm text-gray-600">Find your next opportunity</p>
+                </div>
+                <div class="quick-action-card">
+                    <i class="fas fa-user-edit text-2xl text-warning mb-3"></i>
+                    <h3 class="font-semibold mb-2">Update Profile</h3>
+                    <p class="text-sm text-gray-600">Keep your information current</p>
+                </div>
+                <div class="quick-action-card">
+                    <i class="fas fa-chart-line text-2xl text-error mb-3"></i>
+                    <h3 class="font-semibold mb-2">View Analytics</h3>
+                    <p class="text-sm text-gray-600">Track your progress</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Deadlines -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="text-2xl font-bold">Upcoming Deadlines</h2>
+                <a href="#" class="text-primary font-medium">View All</a>
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="saved-event-item upcoming-deadline">
+                    <div>
+                        <h3 class="font-semibold mb-1">HackTech Global 2025</h3>
+                        <p class="text-sm text-gray-600">Registration deadline in 2 days</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="badge badge-error">Urgent</span>
+                        <button class="btn btn-primary btn-sm">Apply Now</button>
+                    </div>
+                </div>
+                <div class="saved-event-item">
+                    <div>
+                        <h3 class="font-semibold mb-1">Google Summer Internship</h3>
+                        <p class="text-sm text-gray-600">Application deadline in 5 days</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="badge badge-warning">Soon</span>
+                        <button class="btn btn-outline btn-sm">Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Status -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="text-2xl font-bold">Application Status</h2>
+                <a href="#" class="text-primary font-medium">Manage All</a>
+            </div>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success text-white">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">AI Innovation Challenge</h4>
+                            <p class="text-sm text-gray-600">Microsoft • Applied 3 days ago</p>
+                        </div>
+                        <span class="application-status status-applied">Applied</span>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning text-white">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">Mobile App Marathon</h4>
+                            <p class="text-sm text-gray-600">Google Developers • Applied 1 week ago</p>
+                        </div>
+                        <span class="application-status status-pending">Under Review</span>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success text-white">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">UI/UX Design Intern</h4>
+                            <p class="text-sm text-gray-600">Airbnb • Applied 2 weeks ago</p>
+                        </div>
+                        <span class="application-status status-accepted">Accepted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Saved Events -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="text-2xl font-bold">Saved Events</h2>
+                <a href="#" class="text-primary font-medium">View All (12)</a>
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="saved-event-item">
+                    <div>
+                        <h3 class="font-semibold mb-1">DeFi Innovation Hackathon</h3>
+                        <p class="text-sm text-gray-600">Ethereum Foundation • $100,000 Prize</p>
+                        <div class="flex gap-2 mt-2">
+                            <span class="badge badge-primary">Blockchain</span>
+                            <span class="badge badge-secondary">San Francisco</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm">Apply</button>
+                    </div>
+                </div>
+                <div class="saved-event-item">
+                    <div>
+                        <h3 class="font-semibold mb-1">TechnoSpark 2025</h3>
+                        <p class="text-sm text-gray-600">IIT Mumbai • Technical Festival</p>
+                        <div class="flex gap-2 mt-2">
+                            <span class="badge badge-primary">Technical</span>
+                            <span class="badge badge-secondary">Mumbai</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm">Register</button>
+                    </div>
+                </div>
+                <div class="saved-event-item">
+                    <div>
+                        <h3 class="font-semibold mb-1">Data Science Intern</h3>
+                        <p class="text-sm text-gray-600">Microsoft • $4,000/month</p>
+                        <div class="flex gap-2 mt-2">
+                            <span class="badge badge-primary">Data Science</span>
+                            <span class="badge badge-secondary">Remote</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <button class="btn btn-primary btn-sm">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="text-2xl font-bold">Recent Activity</h2>
+                <a href="#" class="text-primary font-medium">View All</a>
+            </div>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="activity-item">
+                        <div class="activity-icon bg-primary text-white">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">Saved "Blockchain Workshop"</h4>
+                            <p class="activity-time">2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-success text-white">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">Applied to "Product Management Intern"</h4>
+                            <p class="activity-time">1 day ago</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-warning text-white">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">Notification enabled for "HackTech Global"</h4>
+                            <p class="activity-time">2 days ago</p>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon bg-info text-white">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4 class="font-semibold">Updated profile information</h4>
+                            <p class="activity-time">1 week ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-8 p-8">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">HackTrack</h4>
+                    <p class="text-gray-400 mb-4">Your ultimate hub for discovering hackathons, internships, and college events all in one place.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="hackathons.html" class="text-gray-400 hover:text-white">Hackathons</a></li>
+                        <li><a href="internships.html" class="text-gray-400 hover:text-white">Internships</a></li>
+                        <li><a href="events.html" class="text-gray-400 hover:text-white">College Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Workshops</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Submit Event</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Stay updated with the latest opportunities</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="form-input rounded-r-none">
+                        <button class="btn btn-primary rounded-l-none">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 pb-4 text-center">
+                <p class="text-gray-400">&copy; 2025 HackTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Events - HackTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 8rem 0 4rem;
+            color: white;
+            text-align: center;
+        }
+
+        .event-type-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .event-type-technical {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .event-type-cultural {
+            background: var(--error);
+            color: white;
+        }
+
+        .event-type-sports {
+            background: var(--success);
+            color: white;
+        }
+
+        .event-type-workshop {
+            background: var(--warning);
+            color: white;
+        }
+
+        .college-name {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .event-date-card {
+            background: var(--primary-blue);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .event-date-card .day {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .event-date-card .month {
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .registration-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .registration-open {
+            color: var(--success);
+        }
+
+        .registration-closing {
+            color: var(--warning);
+        }
+
+        .registration-closed {
+            color: var(--error);
+        }
+
+        .event-card {
+            position: relative;
+            overflow: visible;
+        }
+
+        .calendar-view {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .calendar-day:hover {
+            background: var(--gray-100);
+        }
+
+        .calendar-day.has-event {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: var(--success);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .event-date-card {
+                min-width: 60px;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">HackTrack</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="hackathons.html" class="nav-link" data-page="hackathons">Hackathons</a></li>
+                <li><a href="internships.html" class="nav-link" data-page="internships">Internships</a></li>
+                <li><a href="events.html" class="nav-link active" data-page="events">Events</a></li>
+                <li><a href="dashboard.html" class="nav-link" data-page="dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+                <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="text-4xl font-bold mb-4">College Events & Festivals</h1>
+            <p class="text-lg mb-6">Discover exciting events happening at colleges and universities</p>
+            <div class="flex justify-center gap-4">
+                <span class="badge badge-primary">300+ Events</span>
+                <span class="badge badge-success">150+ Colleges</span>
+                <span class="badge badge-warning">Year Round</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section bg-gray-50 py-8">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Search Events</label>
+                    <input type="text" class="form-input search-input" placeholder="Search by event name or college...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Event Type</label>
+                    <select class="form-select filter-select" data-filter="category">
+                        <option value="all">All Types</option>
+                        <option value="technical">Technical Fest</option>
+                        <option value="cultural">Cultural Fest</option>
+                        <option value="sports">Sports Meet</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="competition">Competition</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <select class="form-select filter-select" data-filter="location">
+                        <option value="all">All Cities</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="pune">Pune</option>
+                        <option value="hyderabad">Hyderabad</option>
+                        <option value="chennai">Chennai</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Month</label>
+                    <select class="form-select filter-select" data-filter="month">
+                        <option value="all">All Months</option>
+                        <option value="january">January</option>
+                        <option value="february">February</option>
+                        <option value="march">March</option>
+                        <option value="april">April</option>
+                        <option value="may">May</option>
+                        <option value="june">June</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <span class="results-count text-gray-600">89 events found</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <section class="py-8">
+        <div class="container">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Event Card 1 -->
+                <div class="event-card card" data-category="technical" data-location="mumbai" data-month="march">
+                    <div class="event-type-badge event-type-technical">Technical Fest</div>
+                    <div class="card-body">
+                        <div class="flex gap-4 mb-4">
+                            <div class="event-date-card">
+                                <div class="day">15</div>
+                                <div class="month">Mar</div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="event-title text-2xl font-bold mb-2">TechnoSpark 2025</h3>
+                                <p class="college-name text-lg mb-2">IIT Mumbai</p>
+                                <p class="event-description text-gray-700 mb-3">Annual technical festival featuring robotics competitions, coding contests, tech talks, and startup pitches. Join us for 3 days of innovation and technology.</p>
+                                <div class="registration-status registration-open">
+                                    <i class="fas fa-circle"></i>
+                                    Registration Open - 450 spots left
+                                </div>
+                            </div>
+                            <div class="event-actions flex flex-col gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="event1">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="event1">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Robotics</span>
+                            <span class="badge badge-primary">Coding</span>
+                            <span class="badge badge-primary">AI/ML</span>
+                            <span class="badge badge-secondary">Mumbai</span>
+                            <span class="badge badge-warning">3 Days</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> March 15-17, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> 9:00 AM - 6:00 PM
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-rupee-sign"></i> Free Entry
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Register Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 2 -->
+                <div class="event-card card" data-category="cultural" data-location="delhi" data-month="february">
+                    <div class="event-type-badge event-type-cultural">Cultural Fest</div>
+                    <div class="card-body">
+                        <div class="flex gap-4 mb-4">
+                            <div class="event-date-card">
+                                <div class="day">28</div>
+                                <div class="month">Feb</div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="event-title text-2xl font-bold mb-2">Kaleidoscope 2025</h3>
+                                <p class="college-name text-lg mb-2">Delhi University</p>
+                                <p class="event-description text-gray-700 mb-3">One of North India's largest cultural festivals featuring music, dance, drama, fashion shows, and celebrity performances. Experience the vibrant culture!</p>
+                                <div class="registration-status registration-closing">
+                                    <i class="fas fa-circle"></i>
+                                    Registration Closing Soon - 2 days left
+                                </div>
+                            </div>
+                            <div class="event-actions flex flex-col gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="event2">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="event2">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Music</span>
+                            <span class="badge badge-primary">Dance</span>
+                            <span class="badge badge-primary">Drama</span>
+                            <span class="badge badge-secondary">Delhi</span>
+                            <span class="badge badge-warning">4 Days</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Feb 28 - Mar 3, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> 10:00 AM - 10:00 PM
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-rupee-sign"></i> ₹500 Entry
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Register Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 3 -->
+                <div class="event-card card" data-category="workshop" data-location="bangalore" data-month="april">
+                    <div class="event-type-badge event-type-workshop">Workshop</div>
+                    <div class="card-body">
+                        <div class="flex gap-4 mb-4">
+                            <div class="event-date-card">
+                                <div class="day">12</div>
+                                <div class="month">Apr</div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="event-title text-2xl font-bold mb-2">Blockchain & Web3 Workshop</h3>
+                                <p class="college-name text-lg mb-2">IISC Bangalore</p>
+                                <p class="event-description text-gray-700 mb-3">Hands-on workshop covering blockchain fundamentals, smart contracts, DeFi, and NFTs. Learn from industry experts and build your first DApp.</p>
+                                <div class="registration-status registration-open">
+                                    <i class="fas fa-circle"></i>
+                                    Registration Open - 25 spots left
+                                </div>
+                            </div>
+                            <div class="event-actions flex flex-col gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="event3">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="event3">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Blockchain</span>
+                            <span class="badge badge-primary">Web3</span>
+                            <span class="badge badge-primary">Smart Contracts</span>
+                            <span class="badge badge-secondary">Bangalore</span>
+                            <span class="badge badge-warning">1 Day</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> April 12, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> 9:00 AM - 5:00 PM
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-rupee-sign"></i> ₹1,200 Entry
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Register Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 4 -->
+                <div class="event-card card" data-category="sports" data-location="pune" data-month="january">
+                    <div class="event-type-badge event-type-sports">Sports Meet</div>
+                    <div class="card-body">
+                        <div class="flex gap-4 mb-4">
+                            <div class="event-date-card">
+                                <div class="day">25</div>
+                                <div class="month">Jan</div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="event-title text-2xl font-bold mb-2">Inter-College Sports Championship</h3>
+                                <p class="college-name text-lg mb-2">University of Pune</p>
+                                <p class="event-description text-gray-700 mb-3">Annual inter-college sports championship featuring cricket, football, basketball, athletics, and more. Compete with the best athletes from across the state.</p>
+                                <div class="registration-status registration-closed">
+                                    <i class="fas fa-circle"></i>
+                                    Registration Closed
+                                </div>
+                            </div>
+                            <div class="event-actions flex flex-col gap-2">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="event4">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="event4">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span class="badge badge-primary">Cricket</span>
+                            <span class="badge badge-primary">Football</span>
+                            <span class="badge badge-primary">Basketball</span>
+                            <span class="badge badge-secondary">Pune</span>
+                            <span class="badge badge-warning">5 Days</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Jan 25-29, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock"></i> 8:00 AM - 6:00 PM
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-rupee-sign"></i> Free Entry
+                            </div>
+                            <a href="#" class="btn btn-outline">
+                                View Details <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button class="btn btn-outline btn-lg">
+                    Load More Events <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendar Section -->
+    <section class="py-8 bg-gray-50">
+        <div class="container">
+            <h2 class="text-3xl font-bold text-center mb-8">Event Calendar</h2>
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <h3 class="text-xl font-semibold">March 2025</h3>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </button>
+                        <button class="btn btn-outline btn-sm">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-grid">
+                    <div class="text-center font-semibold text-gray-600 p-2">Sun</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Mon</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Tue</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Wed</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Thu</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Fri</div>
+                    <div class="text-center font-semibold text-gray-600 p-2">Sat</div>
+                    
+                    <!-- Calendar days -->
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day">2</div>
+                    <div class="calendar-day">3</div>
+                    <div class="calendar-day">4</div>
+                    <div class="calendar-day">5</div>
+                    <div class="calendar-day">6</div>
+                    <div class="calendar-day">7</div>
+                    <div class="calendar-day">8</div>
+                    <div class="calendar-day">9</div>
+                    <div class="calendar-day">10</div>
+                    <div class="calendar-day">11</div>
+                    <div class="calendar-day">12</div>
+                    <div class="calendar-day">13</div>
+                    <div class="calendar-day">14</div>
+                    <div class="calendar-day has-event">15</div>
+                    <div class="calendar-day">16</div>
+                    <div class="calendar-day">17</div>
+                    <div class="calendar-day today">18</div>
+                    <div class="calendar-day">19</div>
+                    <div class="calendar-day">20</div>
+                    <div class="calendar-day has-event">21</div>
+                    <div class="calendar-day">22</div>
+                    <div class="calendar-day">23</div>
+                    <div class="calendar-day">24</div>
+                    <div class="calendar-day has-event">25</div>
+                    <div class="calendar-day">26</div>
+                    <div class="calendar-day">27</div>
+                    <div class="calendar-day">28</div>
+                    <div class="calendar-day">29</div>
+                    <div class="calendar-day">30</div>
+                    <div class="calendar-day">31</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-8 p-8">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">HackTrack</h4>
+                    <p class="text-gray-400 mb-4">Your ultimate hub for discovering hackathons, internships, and college events all in one place.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="hackathons.html" class="text-gray-400 hover:text-white">Hackathons</a></li>
+                        <li><a href="internships.html" class="text-gray-400 hover:text-white">Internships</a></li>
+                        <li><a href="events.html" class="text-gray-400 hover:text-white">College Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Workshops</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Submit Event</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Stay updated with the latest opportunities</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="form-input rounded-r-none">
+                        <button class="btn btn-primary rounded-l-none">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 pb-4 text-center">
+                <p class="text-gray-400">&copy; 2025 HackTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

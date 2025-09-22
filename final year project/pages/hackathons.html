@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathons - HackTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: var(--primary-gradient);
+            padding: 8rem 0 4rem;
+            color: white;
+            text-align: center;
+        }
+
+        .filter-section {
+            background: var(--gray-50);
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .event-card {
+            transition: all var(--transition-normal);
+            margin-bottom: 2rem;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .deadline-warning {
+            background: var(--warning);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .prize-amount {
+            background: var(--success);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .event-meta {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">HackTrack</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../index.html" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="hackathons.html" class="nav-link active" data-page="hackathons">Hackathons</a></li>
+                <li><a href="internships.html" class="nav-link" data-page="internships">Internships</a></li>
+                <li><a href="events.html" class="nav-link" data-page="events">Events</a></li>
+                <li><a href="dashboard.html" class="nav-link" data-page="dashboard">Dashboard</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+                <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="text-4xl font-bold mb-4">Discover Hackathons</h1>
+            <p class="text-lg mb-6">Find and participate in hackathons from around the world</p>
+            <div class="flex justify-center gap-4">
+                <span class="badge badge-primary">500+ Active Events</span>
+                <span class="badge badge-success">$2M+ in Prizes</span>
+                <span class="badge badge-warning">50+ Countries</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label class="form-label">Search Hackathons</label>
+                    <input type="text" class="form-input search-input" placeholder="Search by name, theme, or organization...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select filter-select" data-filter="category">
+                        <option value="all">All Categories</option>
+                        <option value="web">Web Development</option>
+                        <option value="mobile">Mobile Apps</option>
+                        <option value="ai">AI/ML</option>
+                        <option value="blockchain">Blockchain</option>
+                        <option value="iot">IoT</option>
+                        <option value="gaming">Gaming</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <select class="form-select filter-select" data-filter="location">
+                        <option value="all">All Locations</option>
+                        <option value="online">Online</option>
+                        <option value="india">India</option>
+                        <option value="usa">USA</option>
+                        <option value="europe">Europe</option>
+                        <option value="asia">Asia</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Difficulty</label>
+                    <select class="form-select filter-select" data-filter="difficulty">
+                        <option value="all">All Levels</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <span class="results-count text-gray-600">24 hackathons found</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hackathons Grid -->
+    <section class="py-8">
+        <div class="container">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Hackathon Card 1 -->
+                <div class="event-card card" data-category="web" data-location="online" data-difficulty="intermediate">
+                    <div class="card-body">
+                        <div class="event-header">
+                            <div>
+                                <h3 class="event-title text-2xl font-bold mb-2">HackTech Global 2025</h3>
+                                <p class="event-organization text-gray-600 mb-2">Organized by TechCorp</p>
+                                <p class="event-description text-gray-700">Build innovative web applications that solve real-world problems. Focus on sustainability and social impact.</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="hack1">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="hack1">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="event-meta">
+                            <span class="badge badge-primary">Web Development</span>
+                            <span class="badge badge-secondary">Online</span>
+                            <span class="badge badge-warning">Intermediate</span>
+                            <span class="prize-amount">$50,000 Prize</span>
+                            <span class="deadline-warning">5 days left</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Jan 15-17, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 2,500 participants
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hackathon Card 2 -->
+                <div class="event-card card" data-category="ai" data-location="india" data-difficulty="advanced">
+                    <div class="card-body">
+                        <div class="event-header">
+                            <div>
+                                <h3 class="event-title text-2xl font-bold mb-2">AI Innovation Challenge</h3>
+                                <p class="event-organization text-gray-600 mb-2">Organized by Microsoft</p>
+                                <p class="event-description text-gray-700">Create AI solutions for healthcare, education, and environmental challenges using Azure AI services.</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="hack2">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="hack2">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="event-meta">
+                            <span class="badge badge-primary">AI/ML</span>
+                            <span class="badge badge-secondary">Bangalore, India</span>
+                            <span class="badge badge-error">Advanced</span>
+                            <span class="prize-amount">₹10,00,000 Prize</span>
+                            <span class="deadline-warning">2 days left</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Feb 20-22, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 1,200 participants
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hackathon Card 3 -->
+                <div class="event-card card" data-category="mobile" data-location="online" data-difficulty="beginner">
+                    <div class="card-body">
+                        <div class="event-header">
+                            <div>
+                                <h3 class="event-title text-2xl font-bold mb-2">Mobile App Marathon</h3>
+                                <p class="event-organization text-gray-600 mb-2">Organized by Google Developers</p>
+                                <p class="event-description text-gray-700">Build amazing mobile applications using Flutter or React Native. Perfect for beginners!</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="hack3">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="hack3">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="event-meta">
+                            <span class="badge badge-primary">Mobile Apps</span>
+                            <span class="badge badge-secondary">Online</span>
+                            <span class="badge badge-success">Beginner</span>
+                            <span class="prize-amount">$25,000 Prize</span>
+                            <span class="deadline-warning">10 days left</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Mar 5-7, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 3,000 participants
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hackathon Card 4 -->
+                <div class="event-card card" data-category="blockchain" data-location="usa" data-difficulty="intermediate">
+                    <div class="card-body">
+                        <div class="event-header">
+                            <div>
+                                <h3 class="event-title text-2xl font-bold mb-2">DeFi Innovation Hackathon</h3>
+                                <p class="event-organization text-gray-600 mb-2">Organized by Ethereum Foundation</p>
+                                <p class="event-description text-gray-700">Build the next generation of decentralized finance applications on Ethereum blockchain.</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="btn btn-outline btn-sm save-event-btn" data-event-id="hack4">
+                                    <i class="far fa-bookmark"></i> Save
+                                </button>
+                                <button class="btn btn-outline btn-sm notification-toggle" data-event-id="hack4">
+                                    <i class="far fa-bell"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="event-meta">
+                            <span class="badge badge-primary">Blockchain</span>
+                            <span class="badge badge-secondary">San Francisco, USA</span>
+                            <span class="badge badge-warning">Intermediate</span>
+                            <span class="prize-amount">$100,000 Prize</span>
+                            <span class="deadline-warning">15 days left</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <div class="text-sm text-gray-600">
+                                <i class="fas fa-calendar"></i> Apr 10-12, 2025
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-users"></i> 800 participants
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                Apply Now <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More hackathons can be added here -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button class="btn btn-outline btn-lg">
+                    Load More Hackathons <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container">
+            <div class="grid grid-cols-4 gap-8 p-8">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">HackTrack</h4>
+                    <p class="text-gray-400 mb-4">Your ultimate hub for discovering hackathons, internships, and college events all in one place.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Platform</h4>
+                    <ul class="space-y-2">
+                        <li><a href="hackathons.html" class="text-gray-400 hover:text-white">Hackathons</a></li>
+                        <li><a href="internships.html" class="text-gray-400 hover:text-white">Internships</a></li>
+                        <li><a href="events.html" class="text-gray-400 hover:text-white">College Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Workshops</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Submit Event</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-primary mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Stay updated with the latest opportunities</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Your email" class="form-input rounded-r-none">
+                        <button class="btn btn-primary rounded-l-none">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 pb-4 text-center">
+                <p class="text-gray-400">&copy; 2025 HackTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
