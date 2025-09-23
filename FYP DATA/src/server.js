@@ -1,11 +1,14 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 require('dotenv').config();
+
+// Import database configuration
+const dbConnection = require('./config/database');
+const dbInitializer = require('./config/dbInit');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -34,7 +37,7 @@ app.use('/api/', limiter);
 
 // CORS configuration for frontend integration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -47,26 +50,36 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Logging middleware
 app.use(morgan('combined'));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hacktrack-mumbai', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('🚀 Connected to MongoDB - HackTrack Mumbai Database');
-})
-.catch((error) => {
-  console.error('❌ MongoDB connection error:', error);
-  process.exit(1);
-});
+// Initialize database connection
+const initializeApp = async () => {
+  try {
+    // Connect to MongoDB
+    await dbConnection.connect();
+    
+    // Initialize database (create indexes, seed data)
+    if (dbConnection.isMongoConnected()) {
+      await dbInitializer.initializeDatabase();
+    }
+  } catch (error) {
+    console.error('❌ App initialization error:', error);
+  }
+};
+
+// Initialize the application
+initializeApp();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+  const dbInfo = dbConnection.getConnectionInfo();
   res.status(200).json({
     success: true,
     message: 'HackTrack Mumbai Backend API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    database: {
+      connected: dbConnection.isMongoConnected(),
+      info: dbInfo
+    }
   });
 });
 
@@ -114,12 +127,26 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('🛑 SIGTERM received, shutting down gracefully');
-  mongoose.connection.close(() => {
-    console.log('📊 MongoDB connection closed');
+  try {
+    await dbConnection.disconnect();
     process.exit(0);
-  });
+  } catch (error) {
+    console.error('❌ Error during graceful shutdown:', error);
+    process.exit(1);
+  }
+});
+
+process.on('SIGINT', async () => {
+  console.log('� SIGINT received, shutting down gracefully');
+  try {
+    await dbConnection.disconnect();
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during graceful shutdown:', error);
+    process.exit(1);
+  }
 });
 
 module.exports = app;

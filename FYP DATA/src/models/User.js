@@ -72,6 +72,7 @@ const userSchema = new mongoose.Schema({
         'Mumbai University',
         'SPIT Mumbai',
         'KJ Somaiya',
+        'K.J. Somaiya College',
         'Thadomal Shahani',
         'Jai Hind College',
         'St. Xavier\'s College',
@@ -129,7 +130,8 @@ const userSchema = new mongoose.Schema({
       'Machine Learning', 'Data Science', 'AI', 'Blockchain',
       'Mobile Development', 'iOS', 'Android', 'React Native',
       'UI/UX Design', 'Figma', 'Adobe XD', 'Photoshop',
-      'DevOps', 'CI/CD', 'Git', 'GitHub', 'Linux'
+      'DevOps', 'CI/CD', 'Git', 'GitHub', 'Linux',
+      'IoT', 'Arduino', 'Embedded Systems', 'Hardware'
     ]
   }],
   

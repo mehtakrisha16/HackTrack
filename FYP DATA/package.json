@@ -7,7 +7,11 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest",
-    "seed": "node src/scripts/seedDatabase.js"
+    "seed": "node scripts/seedDatabase.js",
+    "db:setup": "node scripts/seedDatabase.js",
+    "db:reset": "node scripts/seedDatabase.js --reset",
+    "db:test": "node scripts/test-atlas.js",
+    "db:template": "node scripts/test-atlas.js --template"
   },
   "keywords": ["hacktrack", "mumbai", "express", "mongodb", "authentication", "api"],
   "author": "HackTrack Mumbai Team",
