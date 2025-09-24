@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import { authUtils } from '../utils/auth';
 
 // Initial state
 const initialState = {
@@ -24,6 +25,7 @@ const initialState = {
 const actionTypes = {
   SET_LOADING: 'SET_LOADING',
   SET_USER: 'SET_USER',
+  UPDATE_USER: 'UPDATE_USER',
   LOGOUT: 'LOGOUT',
   SAVE_EVENT: 'SAVE_EVENT',
   UNSAVE_EVENT: 'UNSAVE_EVENT',
@@ -49,6 +51,12 @@ const appReducer = (state, action) => {
         user: action.payload, 
         isAuthenticated: !!action.payload,
         loading: false 
+      };
+
+    case actionTypes.UPDATE_USER:
+      return { 
+        ...state, 
+        user: { ...state.user, ...action.payload }
       };
 
     case actionTypes.LOGOUT:
@@ -121,45 +129,90 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Load data from localStorage on mount
+  // Check for existing authentication on mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      dispatch({ type: actionTypes.SET_LOADING, payload: true });
+      
+      try {
+        // Check if user is authenticated
+        if (authUtils.isAuthenticated()) {
+          const user = await authUtils.getCurrentUser();
+          if (user) {
+            dispatch({ type: actionTypes.SET_USER, payload: user });
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        dispatch({ type: actionTypes.SET_LOADING, payload: false });
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  // Load other data from localStorage on mount
   useEffect(() => {
     const savedData = localStorage.getItem('hacktrack-data');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        dispatch({ type: actionTypes.LOAD_FROM_STORAGE, payload: parsedData });
+        // Only load non-sensitive data from localStorage
+        const { savedEvents, applications, notifications, theme } = parsedData;
+        dispatch({ 
+          type: actionTypes.LOAD_FROM_STORAGE, 
+          payload: { savedEvents, applications, notifications, theme }
+        });
       } catch (error) {
         console.error('Error loading data from localStorage:', error);
       }
     }
   }, []);
 
-  // Save data to localStorage whenever state changes
+  // Save data to localStorage whenever state changes (excluding user data)
   useEffect(() => {
     const dataToSave = {
-      user: state.user,
-      isAuthenticated: state.isAuthenticated,
       savedEvents: state.savedEvents,
       applications: state.applications,
       notifications: state.notifications,
       theme: state.theme
     };
     localStorage.setItem('hacktrack-data', JSON.stringify(dataToSave));
-  }, [state.user, state.savedEvents, state.applications, state.notifications, state.theme]);
+  }, [state.savedEvents, state.applications, state.notifications, state.theme]);
 
   // Actions
   const setLoading = (loading) => {
     dispatch({ type: actionTypes.SET_LOADING, payload: loading });
   };
 
-  const login = (userData) => {
-    dispatch({ type: actionTypes.SET_USER, payload: userData });
-    toast.success(`Welcome back, ${userData.name}!`);
+  const login = async (credentials) => {
+    try {
+      dispatch({ type: actionTypes.SET_LOADING, payload: true });
+      const userData = await authUtils.login(credentials);
+      dispatch({ type: actionTypes.SET_USER, payload: userData });
+      toast.success(`Welcome back, ${userData.name}!`);
+      return userData;
+    } catch (error) {
+      throw error;
+    } finally {
+      dispatch({ type: actionTypes.SET_LOADING, payload: false });
+    }
+  };
+
+  const updateUser = async (profileData) => {
+    try {
+      const updatedUser = await authUtils.updateProfile(profileData);
+      dispatch({ type: actionTypes.UPDATE_USER, payload: updatedUser });
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = () => {
+    authUtils.logout();
     dispatch({ type: actionTypes.LOGOUT });
-    localStorage.removeItem('hacktrack-data');
     toast.success('Logged out successfully');
   };
 
@@ -231,6 +284,7 @@ export const AppProvider = ({ children }) => {
     ...state,
     setLoading,
     login,
+    updateUser,
     logout,
     saveEvent,
     unsaveEvent,

@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff, FiGithub, FiLinkedin } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
-import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
 import { toast } from 'react-hot-toast';
+import { authUtils } from '../../utils/auth';
 import './Auth.css';
 
 const Signup = () => {
@@ -18,7 +18,6 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -44,23 +43,26 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const userData = {
-        id: '1',
+      await authUtils.register({
         name: formData.name,
         email: formData.email,
-        avatar: '/default-avatar.png',
-        joinedDate: new Date().toISOString()
-      };
+        password: formData.password
+      });
 
-      login(userData);
-      navigate('/dashboard');
       toast.success('Account created successfully!');
+      navigate('/login');
     } catch (error) {
-      toast.error('Signup failed. Please try again.');
+      console.error('Signup error:', error);
+      
+      if (error.status === 400 && error.data?.errors) {
+        // Handle validation errors
+        const validationErrors = error.data.errors;
+        validationErrors.forEach(err => {
+          toast.error(err.msg || err.message);
+        });
+      } else {
+        toast.error(error.message || 'Failed to create account. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

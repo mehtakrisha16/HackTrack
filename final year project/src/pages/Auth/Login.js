@@ -6,6 +6,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
 import { toast } from 'react-hot-toast';
+import { authAPI } from '../../utils/api';
 import './Auth.css';
 
 const Login = () => {
@@ -30,22 +31,24 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const userData = {
-        id: '1',
-        name: 'John Doe',
+      const userData = await login({
         email: formData.email,
-        avatar: '/default-avatar.png',
-        joinedDate: '2024-01-01'
-      };
+        password: formData.password
+      });
 
-      login(userData);
       navigate('/dashboard');
     } catch (error) {
-      toast.error('Login failed. Please try again.');
+      console.error('Login error:', error);
+      
+      if (error.status === 400 && error.data?.errors) {
+        // Handle validation errors
+        const validationErrors = error.data.errors;
+        validationErrors.forEach(err => {
+          toast.error(err.msg || err.message);
+        });
+      } else {
+        toast.error(error.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
