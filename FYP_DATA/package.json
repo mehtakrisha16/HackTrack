@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "start:clean": "taskkill /IM node.exe /F >nul 2>&1 & node src/server.js",
+    "kill:port": "netstat -ano | findstr :5000 && for /f \"tokens=5\" %a in ('netstat -ano ^| findstr :5000') do taskkill /PID %a /F",
     "test": "jest",
     "seed": "node scripts/seedDatabase.js",
     "db:setup": "node scripts/seedDatabase.js",

@@ -24,7 +24,6 @@ class DatabaseConnection {
         retryWrites: true,
         w: 'majority',
         ssl: true,
-        sslValidate: false,
         tlsAllowInvalidCertificates: true,
         tlsAllowInvalidHostnames: true
       };
