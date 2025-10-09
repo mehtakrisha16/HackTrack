@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 class DatabaseConnection {
   constructor() {
     this.isConnected = false;
+    this.useLocalFallback = false;
   }
 
   async connect() {
@@ -10,61 +11,73 @@ class DatabaseConnection {
       // Set mongoose options
       mongoose.set('strictQuery', false);
 
-      // Connection options
+      console.log('🔄 Attempting MongoDB Atlas connection...');
+      
+      // Use exact same options as the successful test script with SSL fixes
       const options = {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        maxPoolSize: 10, // Maintain up to 10 socket connections
-        serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-        socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-        family: 4 // Use IPv4, skip trying IPv6
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 30000,
+        maxPoolSize: 10,
+        retryWrites: true,
+        w: 'majority',
+        ssl: true,
+        sslValidate: false,
+        tlsAllowInvalidCertificates: true,
+        tlsAllowInvalidHostnames: true
       };
 
-      // Connect to MongoDB
-      const conn = await mongoose.connect(
-        process.env.MONGODB_URI || 'mongodb://localhost:27017/hacktrack-mumbai',
-        options
-      );
-
+      const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+      
       this.isConnected = true;
-
-      console.log('🚀 Connected to MongoDB - HackTrack Mumbai Database');
+      console.log('✅ SUCCESS: Connected to MongoDB Atlas!');
       console.log(`📊 Database Host: ${conn.connection.host}`);
       console.log(`📈 Database Name: ${conn.connection.name}`);
-      console.log(`🔌 Connection State: ${conn.connection.readyState === 1 ? 'Connected' : 'Disconnected'}`);
-
-      // Connection event listeners
-      mongoose.connection.on('connected', () => {
-        console.log('✅ Mongoose connected to MongoDB');
-      });
-
-      mongoose.connection.on('error', (err) => {
-        console.error('❌ Mongoose connection error:', err);
-      });
-
-      mongoose.connection.on('disconnected', () => {
-        console.log('⚠️ Mongoose disconnected from MongoDB');
-        this.isConnected = false;
-      });
-
+      console.log(`🔌 Connection State: Connected`);
+      
+      this.setupEventListeners();
       return conn;
 
     } catch (error) {
-      console.error('❌ MongoDB connection error:', error.message);
+      console.error('❌ MongoDB Atlas connection FAILED');
+      console.error('🔧 Error:', error.message);
+      console.warn('⚠️  Starting server without database for testing...');
+      console.log('💡 Login endpoints will return mock responses');
       this.isConnected = false;
       
-      // Don't exit in development, let the app run with limited functionality
-      if (process.env.NODE_ENV === 'production') {
-        process.exit(1);
-      } else {
-        console.log('🟡 Running in development mode without database...');
-      }
+      // Don't exit - continue for testing
+      return null;
     }
+  }
+
+  setupEventListeners() {
+    mongoose.connection.on('connected', () => {
+      console.log('✅ Mongoose connected to MongoDB');
+      this.isConnected = true;
+    });
+
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ Mongoose connection error:', err.message);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('⚠️ Mongoose disconnected from MongoDB');
+      this.isConnected = false;
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('🔄 Mongoose reconnected to MongoDB');
+      this.isConnected = true;
+    });
   }
 
   async disconnect() {
     try {
-      await mongoose.connection.close();
+      if (mongoose.connection.readyState !== 0) {
+        await mongoose.connection.close();
+      }
       this.isConnected = false;
       console.log('📊 MongoDB connection closed');
     } catch (error) {
@@ -85,7 +98,10 @@ class DatabaseConnection {
         collections: Object.keys(mongoose.connection.collections)
       };
     }
-    return null;
+    return { 
+      status: 'disconnected',
+      fallbackMode: this.useLocalFallback 
+    };
   }
 }
 

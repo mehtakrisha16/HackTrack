@@ -8,8 +8,7 @@ const {
   updateProfile,
   changePassword,
   forgotPassword,
-  resetPassword,
-  googleAuth
+  resetPassword
 } = require('../controllers/authController');
 const { protect, authRateLimit } = require('../middleware/auth');
 
@@ -186,14 +185,5 @@ router.get('/verify-token', protect, (req, res) => {
     user: req.user.getPublicProfile()
   });
 });
-
-// @route   POST /api/auth/google
-// @desc    Google OAuth authentication
-// @access  Public
-router.post('/google', strictAuthLimit, [
-  body('token')
-    .notEmpty()
-    .withMessage('Google token is required')
-], googleAuth);
 
 module.exports = router;

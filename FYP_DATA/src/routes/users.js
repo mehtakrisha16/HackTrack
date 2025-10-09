@@ -54,7 +54,7 @@ router.put('/profile', protect, async (req, res) => {
         },
         isEmailVerified: true,
         isActive: true,
-        completedProfile: true
+        profileCompleted: true
       };
 
       return res.status(200).json({
@@ -89,7 +89,7 @@ router.put('/profile', protect, async (req, res) => {
       if (projects) user.projects = projects;
 
       // Mark profile as completed
-      user.completedProfile = true;
+      user.profileCompleted = true;
       user.updatedAt = new Date();
 
       await user.save();
@@ -117,7 +117,7 @@ router.put('/profile', protect, async (req, res) => {
         socialLinks: socialLinks || {},
         experience: experience || [],
         projects: projects || [],
-        completedProfile: true
+        profileCompleted: true
       };
 
       return res.status(200).json({

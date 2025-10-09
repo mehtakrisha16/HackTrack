@@ -51,6 +51,15 @@ const protect = async (req, res, next) => {
       next();
 
     } catch (error) {
+      // Handle malformed tokens gracefully - don't spam console
+      if (error.name === 'JsonWebTokenError' && error.message === 'jwt malformed') {
+        return res.status(401).json({
+          success: false,
+          message: 'Please clear your browser cache and login again',
+          code: 'MALFORMED_TOKEN'
+        });
+      }
+      
       console.error('Token verification error:', error);
       return res.status(401).json({
         success: false,

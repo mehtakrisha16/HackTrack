@@ -1,13 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiGithub, FiLinkedin } from 'react-icons/fi';
-import { FcGoogle } from 'react-icons/fc';
+import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
-import { GoogleSignInButton } from '../../components/GoogleOAuth';
 import { toast } from 'react-hot-toast';
-import { authAPI } from '../../utils/api';
 import './Auth.css';
 
 const Login = () => {
@@ -55,56 +52,7 @@ const Login = () => {
     }
   };
 
-  const handleSocialLogin = (provider) => {
-    toast.success(`${provider} login coming soon!`);
-  };
-
-  const handleGoogleSuccess = async (data) => {
-    try {
-      // Google OAuth success - data already contains token and user
-      // The token is already stored in localStorage by GoogleSignInButton
-      const userData = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        profilePicture: data.user.profilePicture,
-        preferences: data.user.preferences,
-        isEmailVerified: data.user.isEmailVerified,
-        profileCompleted: data.user.profileCompleted
-      };
-      
-      // Set user in context
-      setUser(userData);
-      
-      setIsLoading(false);
-      
-      // Check if profile needs to be completed
-      if (!data.user.profileCompleted) {
-        navigate('/complete-profile', { 
-          state: { 
-            googleData: {
-              name: data.user.name,
-              email: data.user.email,
-              picture: data.user.profilePicture
-            }
-          }
-        });
-        toast.success('Please complete your profile to get the best experience!');
-      } else {
-        navigate('/dashboard');
-        toast.success(`Welcome back, ${data.user.name}!`);
-      }
-    } catch (error) {
-      console.error('Google success handler error:', error);
-      setIsLoading(false);
-      toast.error('Authentication successful but failed to set user data');
-    }
-  };
-
-  const handleGoogleError = (error) => {
-    setIsLoading(false);
-    toast.error(error || 'Google sign-in failed');
-  };
+  // Removed Google OAuth functionality - Email login only
 
   return (
     <div className="auth-page">
@@ -125,34 +73,7 @@ const Login = () => {
             <p>Sign in to discover opportunities in India's financial capital</p>
           </div>
 
-          {/* Social Login */}
-          <div className="social-login">
-            <GoogleSignInButton
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              buttonText="Continue with Google"
-            />
-            
-            <button 
-              className="social-btn github"
-              onClick={() => handleSocialLogin('GitHub')}
-            >
-              <FiGithub size={20} />
-              Continue with GitHub
-            </button>
-            
-            <button 
-              className="social-btn linkedin"
-              onClick={() => handleSocialLogin('LinkedIn')}
-            >
-              <FiLinkedin size={20} />
-              Continue with LinkedIn
-            </button>
-          </div>
-
-          <div className="divider">
-            <span>or</span>
-          </div>
+          {/* Email Login Only */}
 
           {/* Login Form */}
           <form className="auth-form" onSubmit={handleSubmit}>

@@ -140,10 +140,15 @@ export const AppProvider = ({ children }) => {
           const user = await authUtils.getCurrentUser();
           if (user) {
             dispatch({ type: actionTypes.SET_USER, payload: user });
+          } else {
+            // Clear invalid tokens
+            authUtils.logout();
           }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
+        // Clear invalid tokens on any auth error
+        authUtils.logout();
       } finally {
         dispatch({ type: actionTypes.SET_LOADING, payload: false });
       }

@@ -14,7 +14,7 @@ export const authUtils = {
     if (!token) return null;
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -24,13 +24,20 @@ export const authUtils = {
         const data = await response.json();
         return data.user;
       } else {
+        const errorData = await response.json().catch(() => ({}));
+        // Check for malformed token specifically
+        if (errorData.code === 'MALFORMED_TOKEN') {
+          console.log('Clearing malformed token from localStorage');
+        }
         // Token is invalid, remove it
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         return null;
       }
     } catch (error) {
       console.error('Error getting current user:', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       return null;
     }
   },
@@ -84,7 +91,7 @@ export const authUtils = {
     if (!token) throw new Error('No authentication token');
 
     try {
-      const response = await fetch('/api/auth/profile', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear HackTrack Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .button { background: #4f46e5; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
+        .success { color: green; margin: 10px 0; }
+        .info { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix HackTrack Authentication Issues</h1>
+    
+    <div class="info">
+        <strong>Issue:</strong> Old JWT tokens are causing authentication errors.<br>
+        <strong>Solution:</strong> Clear all stored data and start fresh.
+    </div>
+    
+    <button class="button" onclick="clearAllStorage()">Clear All Storage</button>
+    <button class="button" onclick="checkStorage()">Check Current Storage</button>
+    
+    <div id="result"></div>
+    
+    <h3>Manual Steps:</h3>
+    <ol>
+        <li>Click "Clear All Storage" above</li>
+        <li>Go to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+        <li>Try Google OAuth again</li>
+    </ol>
+
+    <script>
+        function clearAllStorage() {
+            // Clear localStorage
+            localStorage.clear();
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            document.getElementById('result').innerHTML = '<div class="success">✅ All storage cleared! You can now go to <a href="http://localhost:3000">HackTrack</a> and try authentication again.</div>';
+        }
+        
+        function checkStorage() {
+            const items = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                items.push(`${key}: ${localStorage.getItem(key).substring(0, 50)}...`);
+            }
+            
+            document.getElementById('result').innerHTML = `
+                <h4>Current localStorage items:</h4>
+                <pre>${items.length > 0 ? items.join('\n') : 'No items found'}</pre>
+            `;
+        }
+        
+        // Auto-clear on page load
+        window.onload = function() {
+            clearAllStorage();
+        };
+    </script>
+</body>
+</html>

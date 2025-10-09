@@ -142,7 +142,7 @@ const CompleteProfile = ({ googleUserData, onComplete }) => {
       };
 
       // Update profile via backend API
-      const response = await fetch('/api/auth/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -158,7 +158,8 @@ const CompleteProfile = ({ googleUserData, onComplete }) => {
         const completeUserData = {
           ...googleUserData,
           ...data.user,
-          profileCompleted: true
+          profileCompleted: true,
+          isProfileComplete: true
         };
 
         // Update context with complete profile
