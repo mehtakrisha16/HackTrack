@@ -3,6 +3,9 @@ const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 
+// In-memory storage for mock users when database is not available
+const mockUsers = new Map();
+
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'hacktrack-mumbai-secret', {
@@ -46,16 +49,24 @@ const register = async (req, res) => {
           _id: Date.now().toString(),
           name,
           email: email.toLowerCase(),
+          password, // Store password for mock login
           phone,
           location: { city: location?.city || 'Mumbai', state: location?.state || 'Maharashtra' }
         };
         
+        // Store in memory for mock mode
+        mockUsers.set(email.toLowerCase(), mockUser);
+        console.log(`🧪 Mock user stored: ${email.toLowerCase()}`);
+        
         const token = generateToken(mockUser._id);
+        
+        // Return user without password
+        const { password: _, ...userResponse } = mockUser;
         
         return res.status(201).json({
           success: true,
           message: 'Registration successful (mock mode)',
-          user: mockUser,
+          user: userResponse,
           token
         });
       }
@@ -70,16 +81,24 @@ const register = async (req, res) => {
           _id: Date.now().toString(),
           name,
           email: email.toLowerCase(),
+          password, // Store password for mock login
           phone,
           location: { city: location?.city || 'Mumbai', state: location?.state || 'Maharashtra' }
         };
         
+        // Store in memory for mock mode
+        mockUsers.set(email.toLowerCase(), mockUser);
+        console.log(`🧪 Mock user stored: ${email.toLowerCase()}`);
+        
         const token = generateToken(mockUser._id);
+        
+        // Return user without password
+        const { password: _, ...userResponse } = mockUser;
         
         return res.status(201).json({
           success: true,
           message: 'Registration successful (mock mode - DB query failed)',
-          user: mockUser,
+          user: userResponse,
           token
         });
       }
@@ -161,29 +180,44 @@ const login = async (req, res) => {
       const mongoose = require('mongoose');
       if (mongoose.connection.readyState !== 1) {
         console.log('🧪 Using mock login (database not connected)');
-        // Mock successful login for testing
-        if (email === 'test@example.com' && password === 'password123') {
-          const mockUser = {
-            _id: '507f1f77bcf86cd799439011',
-            email: 'test@example.com',
-            firstName: 'Test',
-            lastName: 'User'
-          };
-          
+        // Check in-memory mock users first
+        const mockUser = mockUsers.get(email.toLowerCase());
+        if (mockUser && mockUser.password === password) {
           const token = generateToken(mockUser._id);
+          
+          // Return user without password
+          const { password: _, ...userResponse } = mockUser;
           
           return res.status(200).json({
             success: true,
             message: 'Login successful (mock mode)',
-            user: mockUser,
+            user: userResponse,
             token
           });
-        } else {
-          return res.status(401).json({
-            success: false,
-            message: 'Invalid credentials (use test@example.com / password123 for testing)'
+        }
+        
+        // Fallback to hardcoded test user
+        if (email === 'test@example.com' && password === 'password123') {
+          const testUser = {
+            _id: '507f1f77bcf86cd799439011',
+            email: 'test@example.com',
+            name: 'Test User'
+          };
+          
+          const token = generateToken(testUser._id);
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Login successful (mock mode - test user)',
+            user: testUser,
+            token
           });
         }
+        
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid credentials in mock mode'
+        });
       }
 
       // Try database login first
@@ -192,28 +226,45 @@ const login = async (req, res) => {
         user = await User.findOne({ email: email.toLowerCase() }).select('+password');
       } catch (dbError) {
         console.log('🧪 Database query failed during login, switching to mock mode');
-        if (email === 'test@example.com' && password === 'password123') {
-          const mockUser = {
-            _id: '507f1f77bcf86cd799439011',
-            email: 'test@example.com',
-            firstName: 'Test',
-            lastName: 'User'
-          };
-          
+        
+        // Check in-memory mock users first
+        const mockUser = mockUsers.get(email.toLowerCase());
+        if (mockUser && mockUser.password === password) {
           const token = generateToken(mockUser._id);
+          
+          // Return user without password
+          const { password: _, ...userResponse } = mockUser;
           
           return res.status(200).json({
             success: true,
             message: 'Login successful (mock mode - DB query failed)',
-            user: mockUser,
+            user: userResponse,
             token
           });
-        } else {
-          return res.status(401).json({
-            success: false,
-            message: 'Invalid credentials (use test@example.com / password123 for testing)'
+        }
+        
+        // Fallback to hardcoded test user
+        if (email === 'test@example.com' && password === 'password123') {
+          const testUser = {
+            _id: '507f1f77bcf86cd799439011',
+            email: 'test@example.com',
+            name: 'Test User'
+          };
+          
+          const token = generateToken(testUser._id);
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Login successful (mock mode - test user)',
+            user: testUser,
+            token
           });
         }
+        
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid credentials in mock mode'
+        });
       }
       
       if (!user) {
