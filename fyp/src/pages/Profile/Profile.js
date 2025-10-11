@@ -8,11 +8,12 @@ import {
   FiEdit3, 
   FiSave, 
   FiX, 
-  FiGraduationCap,
+  FiBook,
   FiCalendar,
   FiLogOut,
   FiCode,
-  FiHeart
+  FiHeart,
+  FiBriefcase
 } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
@@ -216,6 +217,56 @@ const Profile = () => {
           </div>
         </motion.div>
 
+        {/* Profile Stats */}
+        <motion.div 
+          className="profile-stats"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+        >
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon events">
+                <FiCalendar size={24} />
+              </div>
+              <div className="stat-content">
+                <h4>{user.eventsAttended || 0}</h4>
+                <p>Events Attended</p>
+              </div>
+            </div>
+            
+            <div className="stat-card">
+              <div className="stat-icon hackathons">
+                <FiCode size={24} />
+              </div>
+              <div className="stat-content">
+                <h4>{user.hackathonsParticipated || 0}</h4>
+                <p>Hackathons</p>
+              </div>
+            </div>
+            
+            <div className="stat-card">
+              <div className="stat-icon applications">
+                <FiBriefcase size={24} />
+              </div>
+              <div className="stat-content">
+                <h4>{user.applicationsSubmitted || 0}</h4>
+                <p>Applications</p>
+              </div>
+            </div>
+            
+            <div className="stat-card">
+              <div className="stat-icon score">
+                <FiHeart size={24} />
+              </div>
+              <div className="stat-content">
+                <h4>{user.profileCompleteness || Math.round(((profileData.name ? 1 : 0) + (profileData.phone ? 1 : 0) + (profileData.bio ? 1 : 0) + (profileData.skills.length > 0 ? 1 : 0) + (profileData.interests.length > 0 ? 1 : 0) + (profileData.education.university ? 1 : 0)) / 6 * 100)}%</h4>
+                <p>Profile Complete</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Profile Content */}
         <motion.div 
           className="profile-content"
@@ -284,24 +335,153 @@ const Profile = () => {
               </div>
             </div>
 
+            {/* Location Information */}
+            <div className="profile-section">
+              <h3>
+                <FiMapPin size={20} />
+                Location Details
+              </h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>City</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="location.city"
+                      value={profileData.location.city}
+                      onChange={handleInputChange}
+                      placeholder="Mumbai"
+                    />
+                  ) : (
+                    <p>{profileData.location.city || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>State</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="location.state"
+                      value={profileData.location.state}
+                      onChange={handleInputChange}
+                      placeholder="Maharashtra"
+                    />
+                  ) : (
+                    <p>{profileData.location.state || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Pincode</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="location.pincode"
+                      value={profileData.location.pincode}
+                      onChange={handleInputChange}
+                      placeholder="400001"
+                      maxLength="6"
+                    />
+                  ) : (
+                    <p>{profileData.location.pincode || 'Not provided'}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Education Information */}
+            <div className="profile-section">
+              <h3>
+                <FiBook size={20} />
+                Education Details
+              </h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>University/College</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="education.university"
+                      value={profileData.education.university}
+                      onChange={handleInputChange}
+                      placeholder="IIT Bombay"
+                    />
+                  ) : (
+                    <p>{profileData.education.university || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Degree</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="education.degree"
+                      value={profileData.education.degree}
+                      onChange={handleInputChange}
+                      placeholder="B.Tech"
+                    />
+                  ) : (
+                    <p>{profileData.education.degree || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Field of Study</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="education.fieldOfStudy"
+                      value={profileData.education.fieldOfStudy}
+                      onChange={handleInputChange}
+                      placeholder="Computer Science"
+                    />
+                  ) : (
+                    <p>{profileData.education.fieldOfStudy || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Current Year</label>
+                  {isEditing ? (
+                    <select
+                      name="education.year"
+                      value={profileData.education.year}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">Select Year</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                      <option value="graduate">Graduate</option>
+                    </select>
+                  ) : (
+                    <p>{profileData.education.year ? `${profileData.education.year === 'graduate' ? 'Graduate' : `${profileData.education.year}${profileData.education.year === '1' ? 'st' : profileData.education.year === '2' ? 'nd' : profileData.education.year === '3' ? 'rd' : 'th'} Year`}` : 'Not provided'}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Skills & Interests */}
             <div className="profile-section">
               <h3>
                 <FiCode size={20} />
-                Skills & Interests
+                Technical Skills
               </h3>
               <div className="form-grid">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label>Skills</label>
                   {isEditing ? (
                     <div>
                       <textarea
                         value={profileData.skills.join(', ')}
                         onChange={(e) => handleArrayInputChange('skills', e.target.value)}
-                        placeholder="JavaScript, React, Node.js, Python, etc."
-                        rows={2}
+                        placeholder="JavaScript, React, Node.js, Python, MongoDB, AWS, etc."
+                        rows={3}
                       />
-                      <small>Separate skills with commas</small>
+                      <small>Separate skills with commas. Examples: JavaScript, React, Python, Machine Learning</small>
                     </div>
                   ) : (
                     <div className="tags-container">
@@ -312,23 +492,32 @@ const Profile = () => {
                           </span>
                         ))
                       ) : (
-                        <p>No skills added yet</p>
+                        <p>No skills added yet. Click edit to add your technical skills!</p>
                       )}
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
 
-                <div className="form-group">
+            {/* Interests */}
+            <div className="profile-section">
+              <h3>
+                <FiHeart size={20} />
+                Areas of Interest
+              </h3>
+              <div className="form-grid">
+                <div className="form-group full-width">
                   <label>Interests</label>
                   {isEditing ? (
                     <div>
                       <textarea
                         value={profileData.interests.join(', ')}
                         onChange={(e) => handleArrayInputChange('interests', e.target.value)}
-                        placeholder="Web Development, AI/ML, Mobile Apps, etc."
-                        rows={2}
+                        placeholder="Web Development, AI/ML, Mobile Apps, FinTech, etc."
+                        rows={3}
                       />
-                      <small>Separate interests with commas</small>
+                      <small>Separate interests with commas. Examples: Web Development, AI/ML, FinTech, Blockchain</small>
                     </div>
                   ) : (
                     <div className="tags-container">
@@ -339,7 +528,7 @@ const Profile = () => {
                           </span>
                         ))
                       ) : (
-                        <p>No interests added yet</p>
+                        <p>No interests added yet. Click edit to add your areas of interest!</p>
                       )}
                     </div>
                   )}

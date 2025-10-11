@@ -1,38 +1,106 @@
 .internships {
   min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  position: relative;
 }
 
-/* Hero Section */
+.internships::before {
+  content: '💼';
+  position: absolute;
+  font-size: 18rem;
+  bottom: 50px;
+  left: -60px;
+  opacity: 0.04;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
+}
+
+/* Hero Section - Green Gradient */
 .internships-hero {
-  background: var(--gradient-secondary);
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 15s ease infinite;
   color: white;
-  padding: var(--spacing-2xl) 0;
+  padding: calc(var(--spacing-2xl) * 2) 0;
   margin: calc(-1 * var(--spacing-xl)) -2rem var(--spacing-2xl);
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 40px 40px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.internships-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  animation: rotateGlow 30s linear infinite;
+}
+
+@keyframes rotateGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .hero-content {
   text-align: center;
   position: relative;
   z-index: 2;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .internships-hero h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: var(--spacing-md);
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin-bottom: var(--spacing-lg);
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -2px;
+  animation: slideInScale 0.8s ease-out;
+}
+
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .internships-hero p {
-  font-size: 1.25rem;
-  margin-bottom: var(--spacing-xl);
-  opacity: 0.9;
-  max-width: 600px;
+  font-size: 1.4rem;
+  margin-bottom: var(--spacing-2xl);
+  opacity: 0.95;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .hero-stats {
