@@ -67,10 +67,10 @@ const Login = () => {
           <div className="auth-header">
             <Link to="/" className="auth-logo">
               <span className="logo-text">HackTrack</span>
-              <span className="logo-location">Mumbai</span>
+              <span className="logo-location">India</span>
             </Link>
-            <h1>Welcome Back to Mumbai's Tech Hub</h1>
-            <p>Sign in to discover opportunities in India's financial capital</p>
+            <h1>Welcome Back to India's Tech Hub</h1>
+            <p>Sign in to discover opportunities across India</p>
           </div>
 
           {/* Email Login Only */}

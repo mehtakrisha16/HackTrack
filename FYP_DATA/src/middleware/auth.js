@@ -26,9 +26,9 @@ const protect = async (req, res, next) => {
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hacktrack-mumbai-secret');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hacktrack-india-secret');
 
-      // NO MORE DEMO USERS - Only real authenticated users
+      // REAL DATABASE - Only actual users from MongoDB
       const user = await User.findById(decoded.id);
 
       if (!user) {
@@ -99,9 +99,9 @@ const optionalAuth = async (req, res, next) => {
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hacktrack-mumbai-secret');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hacktrack-india-secret');
 
-      // Find user by ID from token
+      // Find user by ID from token - REAL DATABASE
       const user = await User.findById(decoded.id);
 
       if (user && user.isActive) {

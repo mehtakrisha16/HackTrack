@@ -137,11 +137,11 @@ class DatabaseInitializer {
         },
         {
           name: 'Priya Patel',
-          email: 'priya.patel@vjti.ac.in',
+          email: 'priya.patel@mumbai.ac.in',
           password: 'Student@123',
           location: { city: 'Mumbai', state: 'Maharashtra', country: 'India', pincode: '400019' },
           education: {
-            university: 'VJTI Mumbai',
+            university: 'Mumbai University',
             degree: 'B.E.',
             branch: 'Information Technology',
             year: 2,
@@ -153,11 +153,11 @@ class DatabaseInitializer {
         },
         {
           name: 'Arjun Mehta',
-          email: 'arjun.mehta@somaiya.edu',
+          email: 'arjun.mehta@vit.ac.in',
           password: 'Student@123',
-          location: { city: 'Mumbai', state: 'Maharashtra', country: 'India', pincode: '400077' },
+          location: { city: 'Vellore', state: 'Tamil Nadu', country: 'India', pincode: '632014' },
           education: {
-            university: 'K.J. Somaiya College',
+            university: 'VIT Vellore',
             degree: 'B.Tech',
             branch: 'Electronics',
             year: 4,

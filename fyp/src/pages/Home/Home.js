@@ -14,46 +14,46 @@ const Home = () => {
   const features = [
     {
       icon: FiSearch,
-      title: 'Discover Mumbai Events',
-      description: 'Find hackathons, internships, and college events across Mumbai and Maharashtra.',
+      title: 'Discover Tech Events',
+      description: 'Find hackathons, internships, and college events across India.',
       customIcon: '/images/event-icon.svg'
     },
     {
       icon: FiCalendar,
-      title: 'Track IST Deadlines',
-      description: 'Never miss an application deadline with notifications in Indian Standard Time.',
+      title: 'Track Deadlines',
+      description: 'Never miss an application deadline with smart notifications.',
       customIcon: '/images/hackathon-icon.svg'
     },
     {
       icon: FiBell,
-      title: 'Get Local Alerts',
-      description: 'Receive personalized alerts for opportunities in Mumbai and nearby cities.',
+      title: 'Get Instant Alerts',
+      description: 'Receive personalized alerts for opportunities that match your interests.',
       customIcon: '/images/networking-icon.svg'
     },
     {
       icon: FiUsers,
-      title: 'Connect with Mumbai Tech',
-      description: 'Network with Mumbai\'s tech community, students from IIT Bombay, and local startups.',
+      title: 'Connect with Community',
+      description: 'Network with India\'s tech community, students, and innovative startups.',
       customIcon: '/images/networking-icon.svg'
     },
     {
       icon: FiTrendingUp,
       title: 'Track Your Progress',
-      description: 'Monitor applications and growth in India\'s financial and tech capital.',
+      description: 'Monitor your applications and career growth in one place.',
       customIcon: '/images/internship-icon.svg'
     },
     {
       icon: FiAward,
-      title: 'Build Indian Portfolio',
-      description: 'Showcase achievements from Indian colleges, startups, and tech competitions.',
+      title: 'Build Your Portfolio',
+      description: 'Showcase achievements from colleges, startups, and tech competitions.',
       customIcon: '/images/hackathon-icon.svg'
     }
   ];
 
   const stats = [
-    { number: '5,000+', label: 'Mumbai Events' },
-    { number: '25,000+', label: 'Indian Students' },
-    { number: '200+', label: 'Mumbai Companies' },
+    { number: '10,000+', label: 'Tech Events' },
+    { number: '50,000+', label: 'Students' },
+    { number: '500+', label: 'Companies' },
     { number: '95%', label: 'Success Rate' }
   ];
 
@@ -76,12 +76,12 @@ const Home = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="hero-title">
-              Mumbai's Ultimate Hub for 
+              India's Ultimate Hub for 
               <span className="gradient-text"> Tech Opportunities</span>
             </h1>
             <p className="hero-description">
-              Discover hackathons, internships, and college events across Mumbai and India. 
-              Connect with the financial capital's thriving tech ecosystem and accelerate your career.
+              Discover hackathons, internships, and college events across India. 
+              Connect with the nation's thriving tech ecosystem and accelerate your career.
             </p>
             <div className="hero-actions">
               {user ? (
@@ -94,7 +94,7 @@ const Home = () => {
                 </Link>
               )}
               <Link to="/hackathons">
-                <Button variant="outline" size="large">Explore Events</Button>
+                <Button size="large">Explore Events</Button>
               </Link>
             </div>
           </motion.div>
@@ -218,31 +218,31 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2>Ready to Start Your Journey?</h2>
-            <p>Join thousands of students and professionals from Mumbai's top colleges and companies</p>
+            <p>Join thousands of students and professionals from India's top colleges and companies</p>
             
-            {/* Mumbai Tech Ecosystem Showcase */}
+            {/* Tech Ecosystem Showcase */}
             <div className="mumbai-ecosystem">
-              <h3>Trusted by Mumbai's Tech Leaders</h3>
+              <h3>Trusted by India's Tech Leaders</h3>
               <div className="company-logos">
                 <img src="/images/tcs-logo.svg" alt="TCS" className="company-logo" />
                 <img src="/images/reliance-jio-logo.svg" alt="Reliance Jio" className="company-logo" />
                 <img src="/images/iit-bombay-logo.svg" alt="IIT Bombay" className="company-logo" />
-                <img src="/images/vjti-logo.svg" alt="VJTI Mumbai" className="company-logo" />
+                <img src="/images/vjti-logo.svg" alt="VJTI" className="company-logo" />
               </div>
               
-              <h3>Popular Mumbai Tech Venues</h3>
+              <h3>Popular Tech Venues</h3>
               <div className="venue-showcase">
                 <div className="venue-card">
-                  <img src="/images/bkc-venue.svg" alt="BKC Business District" className="venue-image" />
-                  <span>BKC Business Hub</span>
+                  <img src="/images/bkc-venue.svg" alt="Business District" className="venue-image" />
+                  <span>Business Hubs</span>
                 </div>
                 <div className="venue-card">
-                  <img src="/images/iit-campus-venue.svg" alt="IIT Bombay Campus" className="venue-image" />
-                  <span>IIT Bombay</span>
+                  <img src="/images/iit-campus-venue.svg" alt="IIT Campus" className="venue-image" />
+                  <span>Premier Institutes</span>
                 </div>
                 <div className="venue-card">
-                  <img src="/images/coworking-venue.svg" alt="Mumbai Co-working Spaces" className="venue-image" />
-                  <span>Tech Co-working Hubs</span>
+                  <img src="/images/coworking-venue.svg" alt="Co-working Spaces" className="venue-image" />
+                  <span>Co-working Spaces</span>
                 </div>
               </div>
             </div>

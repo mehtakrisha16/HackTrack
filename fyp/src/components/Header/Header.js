@@ -37,7 +37,7 @@ const Header = () => {
           <Link to="/" className="logo">
             <img 
               src="/images/hacktrack-logo.svg" 
-              alt="HackTrack Mumbai" 
+              alt="HackTrack" 
               className="logo-image"
             />
           </Link>

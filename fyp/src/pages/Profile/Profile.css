@@ -567,3 +567,231 @@
     color: #9ca3af;
   }
 }
+
+/* Professional Bio Editor */
+.bio-editor {
+  position: relative;
+}
+
+.bio-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.bio-textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.bio-textarea::placeholder {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.character-count {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.character-count small {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.bio-display {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+.bio-text {
+  color: #334155;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.bio-empty {
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Social Links Styling */
+.social-link {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.social-link:hover {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.form-group label svg {
+  color: #64748b;
+}
+
+/* Enhanced input fields for URLs */
+.form-group input[type="url"] {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-group input[type="url"]:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Tags container enhancement */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  min-height: 60px;
+}
+
+.tags-container p {
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.tag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.skill-tag {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.interest-tag {
+  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+  color: white;
+}
+
+.interest-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+/* Enhanced textarea for skills/interests */
+.form-group textarea {
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Profile Section Title Enhancement */
+.profile-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #f1f5f9;
+}
+
+.profile-section h3 svg {
+  color: #4f46e5;
+}
+
+/* Responsive Design for Bio */
+@media (max-width: 768px) {
+  .bio-textarea {
+    min-height: 150px;
+    font-size: 0.95rem;
+  }
+
+  .bio-text {
+    font-size: 1rem;
+  }
+
+  .tags-container {
+    gap: 8px;
+  }
+
+  .tag {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}

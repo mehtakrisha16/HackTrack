@@ -257,7 +257,7 @@ router.post('/make-admin', protect, async (req, res) => {
     const { secretKey } = req.body;
     
     // Secret key for making someone admin (you can change this)
-    const ADMIN_SECRET = process.env.ADMIN_SECRET || 'hacktrack-mumbai-admin-2025';
+    const ADMIN_SECRET = process.env.ADMIN_SECRET || 'hacktrack-india-admin-2025';
     
     if (secretKey !== ADMIN_SECRET) {
       return res.status(403).json({

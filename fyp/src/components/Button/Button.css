@@ -47,14 +47,19 @@
 }
 
 .button--outline {
-  background: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  background: white;
+  color: #667eea;
+  border: 3px solid white;
+  font-weight: 700;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .button--outline:hover:not(.button--disabled) {
-  background: var(--primary-color);
+  background: #667eea;
   color: white;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.5);
 }
 
 .button--ghost {

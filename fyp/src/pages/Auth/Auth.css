@@ -423,7 +423,7 @@
   color: var(--primary-dark);
 }
 
-/* Mumbai-specific styling */
+/* Premium border styling */
 .auth-card::before {
   content: '';
   position: absolute;

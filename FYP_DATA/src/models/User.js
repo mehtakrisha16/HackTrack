@@ -67,15 +67,15 @@ const userSchema = new mongoose.Schema({
     default: 'prefer-not-to-say'
   },
   
-  // Location information (Mumbai-focused)
+  // Location information
   location: {
     city: {
       type: String,
-      default: 'Mumbai'
+      default: null
     },
     state: {
       type: String,
-      default: 'Maharashtra'
+      default: null
     },
     country: {
       type: String,
@@ -92,15 +92,17 @@ const userSchema = new mongoose.Schema({
     university: {
       type: String,
       enum: [
-        'IIT Bombay',
-        'VJTI Mumbai',
-        'Mumbai University',
-        'SPIT Mumbai',
-        'KJ Somaiya',
-        'K.J. Somaiya College',
-        'Thadomal Shahani',
-        'Jai Hind College',
-        'St. Xavier\'s College',
+        // Top IITs
+        'IIT Bombay', 'IIT Delhi', 'IIT Madras', 'IIT Kanpur', 'IIT Kharagpur',
+        'IIT Roorkee', 'IIT Guwahati', 'IIT Hyderabad', 'IIT Indore', 'IIT BHU',
+        // Top NITs
+        'NIT Trichy', 'NIT Surathkal', 'NIT Warangal', 'NIT Calicut', 'NIT Rourkela',
+        // Top Universities
+        'Delhi University', 'Mumbai University', 'Pune University', 'Anna University',
+        'Bangalore University', 'Jadavpur University', 'Calcutta University',
+        // Top Private Colleges
+        'BITS Pilani', 'VIT Vellore', 'Manipal Institute', 'SRM University',
+        'Amity University', 'LPU', 'Thapar University',
         'Other'
       ]
     },

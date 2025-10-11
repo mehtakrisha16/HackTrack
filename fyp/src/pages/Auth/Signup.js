@@ -84,10 +84,10 @@ const Signup = () => {
           <div className="auth-header">
             <Link to="/" className="auth-logo">
               <span className="logo-text">HackTrack</span>
-              <span className="logo-location">Mumbai</span>
+              <span className="logo-location">India</span>
             </Link>
-            <h1>Join Mumbai's Tech Community</h1>
-            <p>Connect with 5000+ students and professionals in India's tech capital</p>
+            <h1>Join India's Tech Community</h1>
+            <p>Connect with thousands of students and professionals across India</p>
           </div>
 
           {/* Email Registration Only */}
