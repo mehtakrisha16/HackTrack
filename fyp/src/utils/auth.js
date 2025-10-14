@@ -15,6 +15,7 @@ export const authUtils = {
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/me`, {
+        credentials: 'include', // Include cookies for session persistence
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -47,8 +48,9 @@ export const authUtils = {
     try {
       const data = await authAPI.login(credentials);
       
-      // Store token
+      // Store token and user data (cookies are automatically handled by browser)
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       // Return user data
       return {
@@ -61,6 +63,7 @@ export const authUtils = {
         skills: data.user.skills || [],
         interests: data.user.interests || [],
         bio: data.user.bio,
+        socialLinks: data.user.socialLinks,
         avatar: data.user.avatar || '/default-avatar.png',
         joinedDate: data.user.createdAt || data.user.joinedDate
       };
@@ -69,11 +72,29 @@ export const authUtils = {
     }
   },
 
-  // Register new user
+  // Register new user (automatically logs in like LinkedIn)
   register: async (userData) => {
     try {
       const data = await authAPI.register(userData);
-      return data;
+      
+      // Return complete response with token and user for auto-login
+      return {
+        token: data.token,
+        user: {
+          id: data.user.id || data.user._id,
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone,
+          location: data.user.location,
+          education: data.user.education,
+          skills: data.user.skills || [],
+          interests: data.user.interests || [],
+          bio: data.user.bio,
+          socialLinks: data.user.socialLinks,
+          avatar: data.user.avatar || '/default-avatar.png',
+          joinedDate: data.user.createdAt || data.user.joinedDate
+        }
+      };
     } catch (error) {
       throw error;
     }

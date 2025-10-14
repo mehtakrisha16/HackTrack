@@ -85,3 +85,6 @@ temp/
 *~
 *.tmp
 *.bak
+
+# Uploaded files (profile photos, etc.)
+FYP_DATA/uploads/

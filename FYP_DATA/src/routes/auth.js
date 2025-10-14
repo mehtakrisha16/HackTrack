@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const {
   register,
   login,
+  logout,
   getMe,
   updateProfile,
   changePassword,
@@ -159,21 +160,10 @@ router.put('/reset-password/:resetToken', [
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ], resetPassword);
 
-// @route   POST /api/auth/logout
-// @desc    Logout user (clear cookie if using cookie-based auth)
+// @route   GET /api/auth/logout
+// @desc    Logout user (clear cookie)
 // @access  Private
-router.post('/logout', protect, (req, res) => {
-  // If using cookies for token storage
-  res.cookie('token', '', {
-    expires: new Date(0),
-    httpOnly: true
-  });
-
-  res.status(200).json({
-    success: true,
-    message: 'Logged out successfully'
-  });
-});
+router.get('/logout', protect, logout);
 
 // @route   GET /api/auth/verify-token
 // @desc    Verify if token is valid

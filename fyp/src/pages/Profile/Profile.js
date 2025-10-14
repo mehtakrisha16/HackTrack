@@ -31,6 +31,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
@@ -153,6 +155,119 @@ const Profile = () => {
     }
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Only image files (JPEG, PNG, GIF, WebP) are allowed');
+        return;
+      }
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload photo
+      handlePhotoUpload(file);
+    }
+  };
+
+  const handlePhotoUpload = async (file) => {
+    setIsUploadingPhoto(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please login again');
+        navigate('/login');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('profilePhoto', file);
+
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_URL}/api/users/profile-photo`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update user context with new photo
+        const updatedUser = { ...user, profilePhoto: data.profilePhoto };
+        updateUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        toast.success('✅ Profile photo updated successfully!');
+        setPhotoPreview(null);
+      } else {
+        toast.error(data.message || 'Failed to upload photo');
+        setPhotoPreview(null);
+      }
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      toast.error('❌ Network error. Please check your connection.');
+      setPhotoPreview(null);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!window.confirm('Are you sure you want to remove your profile photo?')) {
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please login again');
+        navigate('/login');
+        return;
+      }
+
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_URL}/api/users/profile-photo`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update user context
+        const updatedUser = { ...user, profilePhoto: null };
+        updateUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        toast.success('Profile photo removed successfully');
+      } else {
+        toast.error(data.message || 'Failed to remove photo');
+      }
+    } catch (error) {
+      console.error('Photo removal error:', error);
+      toast.error('❌ Network error. Please check your connection.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     localStorage.removeItem('token');
@@ -188,9 +303,61 @@ const Profile = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="profile-avatar">
-            <div className="avatar-circle">
-              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+          <div className="profile-avatar-container">
+            <div className="linkedin-avatar">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Uploading..." className="avatar-photo uploading" />
+              ) : user.profilePhoto ? (
+                <img 
+                  src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.profilePhoto}`} 
+                  alt={user.name} 
+                  className="avatar-photo"
+                />
+              ) : (
+                <div className="avatar-placeholder">
+                  <span>{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
+                </div>
+              )}
+              
+              {/* LinkedIn-style Edit Overlay */}
+              <div className="avatar-overlay">
+                <input
+                  type="file"
+                  id="profile-photo-input"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handlePhotoChange}
+                  style={{ display: 'none' }}
+                  disabled={isUploadingPhoto}
+                />
+                <label 
+                  htmlFor="profile-photo-input" 
+                  className="edit-overlay-btn"
+                  title={user.profilePhoto ? "Update photo" : "Add photo"}
+                >
+                  {isUploadingPhoto ? (
+                    <>
+                      <div className="spinner"></div>
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiEdit3 size={24} />
+                      <span>{user.profilePhoto ? "Edit photo" : "Add photo"}</span>
+                    </>
+                  )}
+                </label>
+              </div>
+              
+              {/* Remove Photo Button */}
+              {user.profilePhoto && !isUploadingPhoto && (
+                <button
+                  onClick={handleRemovePhoto}
+                  className="remove-photo-btn"
+                  title="Remove photo"
+                >
+                  <FiX size={20} />
+                </button>
+              )}
             </div>
           </div>
           
@@ -271,16 +438,6 @@ const Profile = () => {
               <div className="stat-content">
                 <h4>{user.applicationsSubmitted || 0}</h4>
                 <p>Applications</p>
-              </div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon score">
-                <FiHeart size={24} />
-              </div>
-              <div className="stat-content">
-                <h4>{user.profileCompleteness || Math.round(((profileData.name ? 1 : 0) + (profileData.phone ? 1 : 0) + (profileData.bio ? 1 : 0) + (profileData.skills.length > 0 ? 1 : 0) + (profileData.interests.length > 0 ? 1 : 0) + (profileData.education.university ? 1 : 0)) / 6 * 100)}%</h4>
-                <p>Profile Complete</p>
               </div>
             </div>
           </div>

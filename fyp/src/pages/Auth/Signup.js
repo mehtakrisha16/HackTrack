@@ -44,14 +44,29 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      await authUtils.register({
+      // Register the user - backend returns token and user data
+      const response = await authUtils.register({
         name: formData.name,
         email: formData.email,
         password: formData.password
       });
 
-      toast.success('Account created successfully!');
-      navigate('/login');
+      // Automatically log the user in after successful registration (like LinkedIn)
+      if (response.token && response.user) {
+        // Store token and user data
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        setUser(response.user);
+        
+        toast.success('🎉 Welcome to HackTrack! Your account has been created successfully!');
+        
+        // Redirect to dashboard (automatically logged in)
+        navigate('/dashboard');
+      } else {
+        // Fallback: redirect to login if token not received
+        toast.success('Account created successfully! Please log in.');
+        navigate('/login');
+      }
     } catch (error) {
       console.error('Signup error:', error);
       

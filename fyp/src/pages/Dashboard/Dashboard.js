@@ -54,8 +54,7 @@ const Dashboard = () => {
   const stats = [
     { icon: FiCalendar, label: 'Events Applied', value: applications.length, color: 'primary' },
     { icon: FiBookmark, label: 'Saved Events', value: savedEvents.length, color: 'secondary' },
-    { icon: FiBell, label: 'Notifications', value: notifications.filter(n => !n.read).length, color: 'warning' },
-    { icon: FiAward, label: 'Profile Views', value: userStatistics.profileViews || 0, color: 'success' }
+    { icon: FiBell, label: 'Notifications', value: notifications.filter(n => !n.read).length, color: 'warning' }
   ];
 
   if (!user) {

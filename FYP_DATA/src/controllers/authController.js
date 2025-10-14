@@ -3,14 +3,49 @@ const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 
-// In-memory storage for mock users when database is not available
-const mockUsers = new Map();
-
-// Generate JWT Token
+// Generate JWT Token (Similar to LinkedIn authentication)
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'hacktrack-india-secret', {
     expiresIn: process.env.JWT_EXPIRE || '30d',
   });
+};
+
+// Send token response with cookie (Like LinkedIn)
+const sendTokenResponse = (user, statusCode, res, message) => {
+  // Create token
+  const token = generateToken(user._id);
+
+  // Cookie options
+  const options = {
+    expires: new Date(
+      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true, // Prevents XSS attacks
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    sameSite: 'lax' // CSRF protection
+  };
+
+  // Get user profile without sensitive data
+  const userProfile = user.getPublicProfile ? user.getPublicProfile() : {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    location: user.location,
+    education: user.education,
+    skills: user.skills,
+    interests: user.interests
+  };
+
+  res
+    .status(statusCode)
+    .cookie('token', token, options)
+    .json({
+      success: true,
+      message,
+      token,
+      user: userProfile
+    });
 };
 
 // @desc    Register user
@@ -39,116 +74,48 @@ const register = async (req, res) => {
       interests
     } = req.body;
 
-    try {
-      // Check if database is connected, if not use mock mode
-      const mongoose = require('mongoose');
-      if (mongoose.connection.readyState !== 1) {
-        console.log('🧪 Using mock registration (database not connected)');
-        
-        const mockUser = {
-          _id: Date.now().toString(),
-          name,
-          email: email.toLowerCase(),
-          password, // Store password for mock login
-          phone,
-          location: { city: location?.city || 'Mumbai', state: location?.state || 'Maharashtra' }
-        };
-        
-        // Store in memory for mock mode
-        mockUsers.set(email.toLowerCase(), mockUser);
-        console.log(`🧪 Mock user stored: ${email.toLowerCase()}`);
-        
-        const token = generateToken(mockUser._id);
-        
-        // Return user without password
-        const { password: _, ...userResponse } = mockUser;
-        
-        return res.status(201).json({
-          success: true,
-          message: 'Registration successful (mock mode)',
-          user: userResponse,
-          token
-        });
-      }
-
-      // Try database operations with error handling
-      let existingUser;
-      try {
-        existingUser = await User.findOne({ email: email.toLowerCase() });
-      } catch (dbError) {
-        console.log('🧪 Database query failed, switching to mock mode');
-        const mockUser = {
-          _id: Date.now().toString(),
-          name,
-          email: email.toLowerCase(),
-          password, // Store password for mock login
-          phone,
-          location: { city: location?.city || 'Mumbai', state: location?.state || 'Maharashtra' }
-        };
-        
-        // Store in memory for mock mode
-        mockUsers.set(email.toLowerCase(), mockUser);
-        console.log(`🧪 Mock user stored: ${email.toLowerCase()}`);
-        
-        const token = generateToken(mockUser._id);
-        
-        // Return user without password
-        const { password: _, ...userResponse } = mockUser;
-        
-        return res.status(201).json({
-          success: true,
-          message: 'Registration successful (mock mode - DB query failed)',
-          user: userResponse,
-          token
-        });
-      }
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'User already exists with this email'
-        });
-      }
-
-      // Create user
-      const user = await User.create({
-        name,
-        email: email.toLowerCase(),
-        password,
-        phone,
-        location: {
-          city: location?.city || null,
-          state: location?.state || null,
-          country: location?.country || 'India',
-          pincode: location?.pincode
-        },
-        education,
-        skills: skills || [],
-        interests: interests || []
-      });
-
-      // Generate token
-      const token = generateToken(user._id);
-
-      // Get user profile without sensitive data
-      const userProfile = user.getPublicProfile();
-
-      res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        token,
-        user: userProfile
-      });
-
-    } catch (dbError) {
-      console.error('Database error during registration:', dbError);
-      return res.status(500).json({
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({
         success: false,
-        message: 'Database connection error. Please try again later.'
+        message: 'User already exists with this email'
       });
     }
 
+    // Create user in database
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password,
+      phone,
+      location: {
+        city: location?.city || null,
+        state: location?.state || null,
+        country: location?.country || 'India',
+        pincode: location?.pincode
+      },
+      education,
+      skills: skills || [],
+      interests: interests || []
+    });
+
+    // Send token response with cookie (like LinkedIn)
+    sendTokenResponse(user, 201, res, 'User registered successfully');
+
   } catch (error) {
     console.error('Registration error:', error);
+    
+    // Check if it's a database connection error
+    if (error.name === 'MongooseError' || error.message.includes('buffering timed out')) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database temporarily unavailable. Please whitelist your IP in MongoDB Atlas.',
+        hint: 'Go to MongoDB Atlas → Network Access → Add IP Address → Allow Access from Anywhere',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
@@ -175,151 +142,53 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     console.log('Login attempt for email:', email);
 
-    try {
-      // Check if database is connected, if not use mock mode
-      const mongoose = require('mongoose');
-      if (mongoose.connection.readyState !== 1) {
-        console.log('🧪 Using mock login (database not connected)');
-        // Check in-memory mock users first
-        const mockUser = mockUsers.get(email.toLowerCase());
-        if (mockUser && mockUser.password === password) {
-          const token = generateToken(mockUser._id);
-          
-          // Return user without password
-          const { password: _, ...userResponse } = mockUser;
-          
-          return res.status(200).json({
-            success: true,
-            message: 'Login successful (mock mode)',
-            user: userResponse,
-            token
-          });
-        }
-        
-        // Fallback to hardcoded test user
-        if (email === 'test@example.com' && password === 'password123') {
-          const testUser = {
-            _id: '507f1f77bcf86cd799439011',
-            email: 'test@example.com',
-            name: 'Test User'
-          };
-          
-          const token = generateToken(testUser._id);
-          
-          return res.status(200).json({
-            success: true,
-            message: 'Login successful (mock mode - test user)',
-            user: testUser,
-            token
-          });
-        }
-        
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid credentials in mock mode'
-        });
-      }
-
-      // Try database login first
-      let user;
-      try {
-        user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-      } catch (dbError) {
-        console.log('🧪 Database query failed during login, switching to mock mode');
-        
-        // Check in-memory mock users first
-        const mockUser = mockUsers.get(email.toLowerCase());
-        if (mockUser && mockUser.password === password) {
-          const token = generateToken(mockUser._id);
-          
-          // Return user without password
-          const { password: _, ...userResponse } = mockUser;
-          
-          return res.status(200).json({
-            success: true,
-            message: 'Login successful (mock mode - DB query failed)',
-            user: userResponse,
-            token
-          });
-        }
-        
-        // Fallback to hardcoded test user
-        if (email === 'test@example.com' && password === 'password123') {
-          const testUser = {
-            _id: '507f1f77bcf86cd799439011',
-            email: 'test@example.com',
-            name: 'Test User'
-          };
-          
-          const token = generateToken(testUser._id);
-          
-          return res.status(200).json({
-            success: true,
-            message: 'Login successful (mock mode - test user)',
-            user: testUser,
-            token
-          });
-        }
-        
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid credentials in mock mode'
-        });
-      }
-      
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
-
-      // Check if account is active
-      if (!user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'Account has been deactivated. Please contact support.'
-        });
-      }
-
-      // Check password
-      const isPasswordMatch = await user.matchPassword(password);
-      if (!isPasswordMatch) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
-
-      // Update last login
-      user.lastLogin = new Date();
-      await user.save();
-
-      // Generate token
-      const token = generateToken(user._id);
-
-      // Get user profile without sensitive data
-      const userProfile = user.getPublicProfile();
-
-      res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        token,
-        user: userProfile
-      });
-
-    } catch (dbError) {
-      console.error('Database error during login:', dbError);
-      return res.status(500).json({
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    
+    if (!user) {
+      return res.status(401).json({
         success: false,
-        message: 'Database connection error. Please try again later.'
+        message: 'Invalid email or password'
       });
     }
 
-    // This code is now handled in the try block above
+    // Check if account is active
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account has been deactivated. Please contact support.'
+      });
+    }
+
+    // Check password
+    const isPasswordMatch = await user.matchPassword(password);
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Send token response with cookie (like LinkedIn)
+    sendTokenResponse(user, 200, res, 'Login successful');
 
   } catch (error) {
     console.error('Login error:', error);
+    
+    // Check if it's a database connection error
+    if (error.name === 'MongooseError' || error.message.includes('buffering timed out')) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database temporarily unavailable. Please whitelist your IP in MongoDB Atlas to login.',
+        hint: 'Go to https://cloud.mongodb.com/ → Network Access → Add IP Address → Allow Access from Anywhere',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Server error during login',
@@ -355,6 +224,29 @@ const getMe = async (req, res) => {
       success: false,
       message: 'Server error',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// @desc    Logout user / clear cookie
+// @route   GET /api/auth/logout
+// @access  Private
+const logout = async (req, res) => {
+  try {
+    res.cookie('token', 'none', {
+      expires: new Date(Date.now() + 10 * 1000), // 10 seconds
+      httpOnly: true
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during logout'
     });
   }
 };
@@ -578,6 +470,7 @@ const resetPassword = async (req, res) => {
 module.exports = {
   register,
   login,
+  logout,
   getMe,
   updateProfile,
   changePassword,

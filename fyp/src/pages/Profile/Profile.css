@@ -34,33 +34,146 @@
   background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
 }
 
-.profile-avatar {
+/* LinkedIn-Style Profile Avatar */
+.profile-avatar-container {
   position: relative;
 }
 
-.avatar-circle {
-  width: 120px;
-  height: 120px;
+.linkedin-avatar {
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 4px solid white;
+}
+
+.linkedin-avatar:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transform: scale(1.02);
+}
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-photo.uploading {
+  opacity: 0.5;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
   background: linear-gradient(135deg, #4f46e5, #7c3aed);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
-  font-weight: 700;
-  color: white;
-  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
-  position: relative;
 }
 
-.avatar-circle::after {
-  content: '';
+.avatar-placeholder span {
+  font-size: 64px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* LinkedIn-Style Edit Overlay */
+.avatar-overlay {
   position: absolute;
-  inset: -3px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
-  z-index: -1;
-  opacity: 0.5;
+}
+
+.linkedin-avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.edit-overlay-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  padding: 12px;
+  transition: transform 0.2s ease;
+}
+
+.edit-overlay-btn:hover {
+  transform: scale(1.1);
+}
+
+.edit-overlay-btn span {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.edit-overlay-btn svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Remove Photo Button */
+.remove-photo-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #ef4444;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.linkedin-avatar:hover .remove-photo-btn {
+  opacity: 1;
+}
+
+.remove-photo-btn:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .profile-info {

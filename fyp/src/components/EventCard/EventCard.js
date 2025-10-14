@@ -141,22 +141,41 @@ const EventCard = ({ event, variant = 'default' }) => {
             <FiBookmark size={20} />
           </button>
           {event.featured && (
-            <span className="featured-badge">Featured</span>
+            <span className="featured-badge">FEATURED</span>
           )}
           {!isExpired && isUrgent && (
-            <span className="urgent-badge">Urgent</span>
+            <span className="urgent-badge">URGENT</span>
           )}
         </div>
       </div>
 
       {/* Event Content */}
       <div className="event-content">
-        {/* Event Type & Difficulty */}
-        <div className="event-meta">
-          <span className={`event-type ${event.type}`}>{event.type}</span>
+        {/* Status Badges Row */}
+        <div className="status-badges">
+          {/* Event Type Badge */}
+          <span className={`status-badge type-badge ${event.type?.toLowerCase()}`}>
+            {event.type?.toUpperCase()}
+          </span>
+          
+          {/* Difficulty Badge */}
           {event.difficulty && (
-            <span className={`difficulty ${event.difficulty.toLowerCase()}`}>
-              {event.difficulty}
+            <span className={`status-badge difficulty-badge ${event.difficulty.toLowerCase()}`}>
+              {event.difficulty.toUpperCase()}
+            </span>
+          )}
+          
+          {/* Status Badge (Open/Closed) */}
+          <span className={`status-badge status-indicator ${isExpired ? 'closed' : 'open'}`}>
+            {isExpired ? 'CLOSED' : 'OPEN'}
+          </span>
+          
+          {/* Days Left Badge */}
+          {!isExpired && (
+            <span className={`status-badge days-badge ${isUrgent ? 'urgent' : 'normal'}`}>
+              {daysLeft === 0 ? 'DUE TODAY' : 
+               daysLeft === 1 ? '1 DAY LEFT' : 
+               `${daysLeft} DAYS LEFT`}
             </span>
           )}
         </div>

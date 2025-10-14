@@ -44,6 +44,14 @@ const Login = () => {
         validationErrors.forEach(err => {
           toast.error(err.msg || err.message);
         });
+      } else if (error.status === 503) {
+        // Database unavailable - MongoDB not connected
+        toast.error('⚠️ Database temporarily unavailable');
+        toast.error('Please whitelist your IP in MongoDB Atlas', { duration: 6000 });
+        console.log('Hint:', error.data?.hint);
+      } else if (error.status === 0) {
+        // Network error - backend not running
+        toast.error('❌ Cannot connect to server. Make sure backend is running on port 5000.');
       } else {
         toast.error(error.message || 'Login failed. Please check your credentials.');
       }

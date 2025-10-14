@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
@@ -49,6 +50,12 @@ app.use(cors({
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cookie parser middleware (for LinkedIn-style authentication)
+app.use(cookieParser());
+
+// Serve static files (uploaded profile photos)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Logging middleware
 app.use(morgan('combined'));

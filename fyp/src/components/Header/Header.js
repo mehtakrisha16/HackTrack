@@ -73,11 +73,19 @@ const Header = () => {
                     className="profile-btn"
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                   >
-                    <img 
-                      src={user.avatar || '/default-avatar.png'} 
-                      alt={user.name}
-                      className="profile-avatar"
-                    />
+                    <div className="profile-avatar">
+                      {user.profilePhoto ? (
+                        <img 
+                          src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.profilePhoto}`}
+                          alt={user.name}
+                          className="avatar-img"
+                        />
+                      ) : (
+                        <div className="avatar-initial">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                      )}
+                    </div>
                   </button>
 
                   {isProfileOpen && (
@@ -87,9 +95,28 @@ const Header = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                     >
-                      <Link to="/profile" className="dropdown-item">
+                      <div className="dropdown-user-info">
+                        <div className="dropdown-avatar">
+                          {user.profilePhoto ? (
+                            <img 
+                              src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.profilePhoto}`}
+                              alt={user.name}
+                            />
+                          ) : (
+                            <div className="dropdown-initial">
+                              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                          )}
+                        </div>
+                        <div className="dropdown-user-details">
+                          <p className="dropdown-name">{user.name}</p>
+                          <p className="dropdown-email">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="dropdown-divider"></div>
+                      <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileOpen(false)}>
                         <FiUser size={16} />
-                        Profile
+                        View Profile
                       </Link>
                       <button onClick={handleLogout} className="dropdown-item">
                         <FiLogOut size={16} />

@@ -1,8 +1,153 @@
 const express = require('express');
 const { protect, optionalAuth } = require('../middleware/auth');
 const User = require('../models/User');
+const { upload, deleteOldPhoto } = require('../middleware/upload');
+const path = require('path');
 
 const router = express.Router();
+
+// @route   POST /api/users/profile-photo
+// @desc    Upload/Update user profile photo
+// @access  Private
+router.post('/profile-photo', protect, deleteOldPhoto, upload.single('profilePhoto'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a photo'
+      });
+    }
+
+    // Construct the photo URL
+    const photoUrl = `/uploads/profiles/${req.file.filename}`;
+
+    // Handle demo users
+    if (req.user.name && req.user.name.includes('Demo User')) {
+      return res.status(200).json({
+        success: true,
+        message: 'Profile photo uploaded successfully',
+        profilePhoto: photoUrl,
+        user: {
+          ...req.user,
+          profilePhoto: photoUrl
+        }
+      });
+    }
+
+    // Update user in database
+    try {
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { profilePhoto: photoUrl },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Profile photo uploaded successfully',
+        profilePhoto: photoUrl,
+        user: user.getPublicProfile()
+      });
+
+    } catch (dbError) {
+      console.error('Database error in profile photo upload:', dbError);
+      // Fallback to demo response
+      return res.status(200).json({
+        success: true,
+        message: 'Profile photo uploaded successfully',
+        profilePhoto: photoUrl,
+        user: {
+          ...req.user,
+          profilePhoto: photoUrl
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Profile photo upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error uploading profile photo'
+    });
+  }
+});
+
+// @route   DELETE /api/users/profile-photo
+// @desc    Delete user profile photo
+// @access  Private
+router.delete('/profile-photo', protect, async (req, res) => {
+  try {
+    // Handle demo users
+    if (req.user.name && req.user.name.includes('Demo User')) {
+      return res.status(200).json({
+        success: true,
+        message: 'Profile photo removed successfully',
+        user: {
+          ...req.user,
+          profilePhoto: null
+        }
+      });
+    }
+
+    // Get user's current photo
+    try {
+      const user = await User.findById(req.user.id);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      // Delete photo file if exists
+      if (user.profilePhoto) {
+        const fs = require('fs');
+        const photoPath = path.join(__dirname, '../..', user.profilePhoto);
+        
+        if (fs.existsSync(photoPath)) {
+          fs.unlinkSync(photoPath);
+        }
+      }
+
+      // Update user
+      user.profilePhoto = null;
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: 'Profile photo removed successfully',
+        user: user.getPublicProfile()
+      });
+
+    } catch (dbError) {
+      console.error('Database error in profile photo deletion:', dbError);
+      // Fallback to demo response
+      return res.status(200).json({
+        success: true,
+        message: 'Profile photo removed successfully',
+        user: {
+          ...req.user,
+          profilePhoto: null
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Profile photo deletion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting profile photo'
+    });
+  }
+});
 
 // @route   PUT /api/users/profile
 // @desc    Update user profile (complete profile after Google OAuth)
@@ -202,6 +347,11 @@ router.get('/profile/:id', optionalAuth, async (req, res) => {
       delete profile.achievements;
     }
 
+    // Remove profile photo from public profiles (only show to the user themselves)
+    if (!req.user || req.user._id.toString() !== user._id.toString()) {
+      delete profile.profilePhoto;
+    }
+
     res.status(200).json({
       success: true,
       user: profile
@@ -267,7 +417,7 @@ router.get('/search', async (req, res) => {
 
     // Execute search
     const users = await User.find(query)
-      .select('name location education skills interests stats avatar')
+      .select('name location education skills interests stats')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -413,7 +563,7 @@ router.get('/leaderboard', async (req, res) => {
       'preferences.privacy.profileVisible': true,
       [sortField]: { $gt: 0 }
     })
-    .select('name location education stats avatar')
+    .select('name location education stats')
     .sort({ [sortField]: -1 })
     .limit(parseInt(limit));
 

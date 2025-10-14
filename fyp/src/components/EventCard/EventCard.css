@@ -201,6 +201,114 @@
   padding: var(--spacing-lg);
 }
 
+/* Status Badges Row - LinkedIn Style */
+.status-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Type Badge Colors */
+.type-badge.hackathon {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.type-badge.internship {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.type-badge.event {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+/* Difficulty Badge Colors */
+.difficulty-badge.beginner {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.difficulty-badge.intermediate {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.difficulty-badge.advanced {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Status Indicator (Open/Closed) */
+.status-indicator.open {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 2px solid #10b981;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+.status-indicator.closed {
+  background: rgba(107, 114, 128, 0.15);
+  color: #6b7280;
+  border: 2px solid #9ca3af;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+  }
+}
+
+/* Days Left Badge */
+.days-badge.normal {
+  background: linear-gradient(135deg, #06b6d4, #0284c7);
+  color: white;
+}
+
+.days-badge.urgent {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  animation: urgentPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+  }
+}
+
 .event-meta {
   display: flex;
   gap: var(--spacing-sm);
