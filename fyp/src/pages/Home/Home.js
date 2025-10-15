@@ -5,7 +5,7 @@ import { FiSearch, FiCalendar, FiBell, FiUsers, FiTrendingUp, FiAward } from 're
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
 import EventCard from '../../components/EventCard/EventCard';
-import { featuredEvents } from '../../data/mockData';
+import { allRealOpportunities } from '../../data/currentOpportunities2025';
 import './Home.css';
 
 const Home = () => {
@@ -175,12 +175,12 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2>Featured Opportunities</h2>
-            <p>Hand-picked events and opportunities for you</p>
+            <h2>🔥 Featured Opportunities - October 2025</h2>
+            <p>Real hackathons, internships & events across India this week!</p>
           </motion.div>
 
           <div className="events-grid">
-            {featuredEvents.slice(0, 6).map((event, index) => (
+            {allRealOpportunities.filter(e => e.featured).slice(0, 6).map((event, index) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 30 }}

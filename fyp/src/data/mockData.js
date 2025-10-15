@@ -1,4 +1,6 @@
 // Mock data for the HackTrack application
+// Import real current opportunities with actual registration links
+import { allRealOpportunities, realHackathons2025, realInternships2025, realEvents2025 } from './currentOpportunities2025';
 
 export const featuredEvents = [
   {
@@ -227,7 +229,9 @@ export const events = [
   }
 ];
 
+// Combine mock data with real current opportunities
 export const allEvents = [
+  ...allRealOpportunities, // REAL opportunities with actual registration links (Oct 14 - Dec 2025)
   ...hackathons,
   ...internships,
   ...events

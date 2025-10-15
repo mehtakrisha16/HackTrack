@@ -1,0 +1,208 @@
+/* Countdown Timer Styles */
+.countdown-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-icon {
+  font-size: 16px;
+  animation: tickTock 2s ease-in-out infinite;
+}
+
+@keyframes tickTock {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-15deg);
+  }
+  75% {
+    transform: rotate(15deg);
+  }
+}
+
+.countdown-text {
+  white-space: nowrap;
+  z-index: 1;
+}
+
+/* Urgency States */
+.countdown-timer.normal {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.countdown-timer.normal .countdown-icon {
+  color: #16a34a;
+}
+
+.countdown-timer.warning {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1));
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.countdown-timer.warning .countdown-icon {
+  color: #d97706;
+}
+
+.countdown-timer.urgent {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.15));
+  color: #ea580c;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  animation: urgentPulse 2s ease-in-out infinite;
+}
+
+.countdown-timer.urgent .countdown-icon {
+  color: #ea580c;
+  animation: urgentShake 1.5s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
+  }
+}
+
+@keyframes urgentShake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(-10deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(10deg);
+  }
+}
+
+.countdown-timer.critical {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  animation: criticalBlink 1s ease-in-out infinite;
+}
+
+.countdown-timer.critical .countdown-icon {
+  color: #dc2626;
+  animation: criticalSpin 1.5s linear infinite;
+}
+
+@keyframes criticalBlink {
+  0%, 49% {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+  }
+  50%, 100% {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(220, 38, 38, 0.4));
+  }
+}
+
+@keyframes criticalSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.countdown-timer.expired {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.1), rgba(75, 85, 99, 0.1));
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  opacity: 0.7;
+}
+
+.countdown-timer.expired .countdown-icon {
+  color: #6b7280;
+  animation: none;
+}
+
+/* Pulse Effect for Critical/Urgent */
+.countdown-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 20px;
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.countdown-timer.critical .countdown-pulse {
+  border: 2px solid #dc2626;
+}
+
+.countdown-timer.urgent .countdown-pulse {
+  border: 2px solid #ea580c;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Hover Effects */
+.countdown-timer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.countdown-timer.expired:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .countdown-timer {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .countdown-icon {
+    font-size: 14px;
+  }
+}
+
+/* Tooltip for detailed time */
+.countdown-timer::after {
+  content: attr(data-full-time);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.countdown-timer:hover::after {
+  opacity: 1;
+}

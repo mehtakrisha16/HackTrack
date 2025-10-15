@@ -4,14 +4,22 @@ import { FiSearch, FiFilter, FiGrid, FiList } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import EventCard from '../../components/EventCard/EventCard';
 import Button from '../../components/Button/Button';
+import FilterPanel from '../../components/FilterPanel/FilterPanel';
 import { hackathons, difficulties, technologies, locations, states } from '../../data/mockData';
 import './Hackathons.css';
 
 const Hackathons = () => {
   const { filters, setFilters, searchQuery, setSearchQuery } = useContext(AppContext);
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true); // Show filters by default
   const [filteredEvents, setFilteredEvents] = useState(hackathons);
+  const [activeFilters, setActiveFilters] = useState({
+    locations: [],
+    deadlines: [],
+    difficulties: [],
+    prizeRange: [],
+    mode: []
+  });
 
   // Filter events based on search and filters
   useEffect(() => {
@@ -23,91 +31,108 @@ const Hackathons = () => {
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.organizer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.technologies.some(tech => 
+        (event.technologies && event.technologies.some(tech => 
           tech.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
+      );
+    }
+
+    // Apply location filters
+    if (activeFilters.locations.length > 0) {
+      filtered = filtered.filter(event => {
+        const eventCity = typeof event.location === 'string' 
+          ? event.location 
+          : event.location?.city || '';
+        return activeFilters.locations.some(loc => 
+          eventCity.toLowerCase().includes(loc.toLowerCase())
+        );
+      });
+    }
+
+    // Apply deadline filters
+    if (activeFilters.deadlines.length > 0) {
+      const today = new Date();
+      filtered = filtered.filter(event => {
+        const deadline = new Date(event.deadline);
+        const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+        
+        return activeFilters.deadlines.some(range => {
+          switch(range) {
+            case 'Today':
+              return daysLeft === 0;
+            case 'This Week':
+              return daysLeft >= 0 && daysLeft <= 7;
+            case 'This Month':
+              return daysLeft >= 0 && daysLeft <= 30;
+            case 'Next 3 Months':
+              return daysLeft >= 0 && daysLeft <= 90;
+            default:
+              return true;
+          }
+        });
+      });
+    }
+
+    // Apply difficulty filters
+    if (activeFilters.difficulties.length > 0) {
+      filtered = filtered.filter(event =>
+        activeFilters.difficulties.some(diff =>
+          event.difficulty?.toLowerCase() === diff.toLowerCase()
         )
       );
     }
 
-    // Apply difficulty filter
-    if (filters.difficulty !== 'all') {
-      filtered = filtered.filter(event => 
-        event.difficulty?.toLowerCase() === filters.difficulty
-      );
-    }
-
-    // Apply location filter
-    if (filters.location !== 'all') {
-      filtered = filtered.filter(event =>
-        event.location.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    // Apply state filter
-    if (filters.state && filters.state !== 'all') {
+    // Apply prize range filters
+    if (activeFilters.prizeRange.length > 0) {
       filtered = filtered.filter(event => {
-        const location = event.location.toLowerCase();
-        const state = filters.state.toLowerCase();
+        const prize = event.prize || event.salary || 0;
+        const prizeNum = typeof prize === 'string' 
+          ? parseInt(prize.replace(/[^0-9]/g, '')) 
+          : prize;
         
-        // Map major cities to their states for better filtering
-        const cityStateMap = {
-          'mumbai': 'maharashtra',
-          'pune': 'maharashtra',
-          'bangalore': 'karnataka',
-          'bengaluru': 'karnataka',
-          'chennai': 'tamil nadu',
-          'delhi': 'delhi ncr',
-          'gurgaon': 'delhi ncr',
-          'noida': 'delhi ncr',
-          'hyderabad': 'telangana',
-          'kolkata': 'west bengal',
-          'ahmedabad': 'gujarat',
-          'jaipur': 'rajasthan',
-          'kochi': 'kerala',
-          'chandigarh': 'punjab'
-        };
-        
-        // Check if location contains state name or city belongs to state
-        return location.includes(state) || 
-               Object.entries(cityStateMap).some(([city, cityState]) => 
-                 location.includes(city) && cityState === state
-               );
+        return activeFilters.prizeRange.some(range => {
+          switch(range) {
+            case 'Under ₹50K':
+              return prizeNum < 50000;
+            case '₹50K - ₹1L':
+              return prizeNum >= 50000 && prizeNum < 100000;
+            case '₹1L - ₹5L':
+              return prizeNum >= 100000 && prizeNum < 500000;
+            case 'Above ₹5L':
+              return prizeNum >= 500000;
+            default:
+              return true;
+          }
+        });
       });
     }
 
-    // Apply date filter
-    if (filters.dateRange !== 'all') {
-      const today = new Date();
+    // Apply mode filters
+    if (activeFilters.mode.length > 0) {
       filtered = filtered.filter(event => {
-        const eventDate = new Date(event.startDate);
-        const daysDiff = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
-        
-        switch (filters.dateRange) {
-          case 'this-week':
-            return daysDiff <= 7 && daysDiff >= 0;
-          case 'this-month':
-            return daysDiff <= 30 && daysDiff >= 0;
-          case 'this-quarter':
-            return daysDiff <= 90 && daysDiff >= 0;
-          default:
-            return true;
-        }
+        const eventMode = typeof event.location === 'string' 
+          ? 'In-person' 
+          : event.location?.mode || 'In-person';
+        return activeFilters.mode.some(mode =>
+          eventMode.toLowerCase().includes(mode.toLowerCase())
+        );
       });
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, filters]);
+  }, [searchQuery, activeFilters]);
 
-  const handleFilterChange = (key, value) => {
-    setFilters({ [key]: value });
+  const handleFilterChange = (newFilters) => {
+    setActiveFilters(newFilters);
   };
 
   const clearFilters = () => {
-    setFilters({
-      difficulty: 'all',
-      location: 'all',
-      state: 'all',
-      dateRange: 'all'
+    setActiveFilters({
+      locations: [],
+      deadlines: [],
+      difficulties: [],
+      prizeRange: [],
+      mode: []
     });
     setSearchQuery('');
   };
@@ -130,8 +155,8 @@ const Hackathons = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1>Mumbai Hackathons</h1>
-              <p>Discover coding competitions, innovation challenges, and tech events across Mumbai's thriving startup ecosystem</p>
+              <h1>Hackathons</h1>
+              <p>Discover coding competitions, innovation challenges, and tech events across India's thriving startup ecosystem</p>
               <div className="hero-stats">
                 <div className="stat">
                   <span className="stat-number">{hackathons.length}</span>
@@ -142,8 +167,8 @@ const Hackathons = () => {
                   <span className="stat-label">Total Prize Money</span>
                 </div>
                 <div className="stat">
-                  <span className="stat-number">200+</span>
-                  <span className="stat-label">Mumbai Teams</span>
+                  <span className="stat-number">5K+</span>
+                  <span className="stat-label">Participants</span>
                 </div>
               </div>
             </motion.div>
@@ -206,112 +231,73 @@ const Hackathons = () => {
           </div>
         </motion.div>
 
-        {/* Filter Panel */}
-        {showFilters && (
-          <motion.div 
-            className="filter-panel"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <div className="filter-group">
-              <label>Difficulty</label>
-              <select
-                value={filters.difficulty}
-                onChange={(e) => handleFilterChange('difficulty', e.target.value)}
-              >
-                <option value="all">All Levels</option>
-                {Object.entries(difficulties).map(([key, value]) => (
-                  <option key={key} value={key}>{value}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Location</label>
-              <select
-                value={filters.location}
-                onChange={(e) => handleFilterChange('location', e.target.value)}
-              >
-                <option value="all">All Locations</option>
-                {locations.map((location) => (
-                  <option key={location} value={location.toLowerCase()}>
-                    {location}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>State/Region</label>
-              <select
-                value={filters.state || 'all'}
-                onChange={(e) => handleFilterChange('state', e.target.value)}
-              >
-                <option value="all">All States</option>
-                {states.map((state) => (
-                  <option key={state} value={state.toLowerCase()}>
-                    {state}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Date Range</label>
-              <select
-                value={filters.dateRange}
-                onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-              >
-                <option value="all">All Dates</option>
-                <option value="this-week">This Week</option>
-                <option value="this-month">This Month</option>
-                <option value="this-quarter">Next 3 Months</option>
-              </select>
-            </div>
-
-            <Button variant="ghost" onClick={clearFilters}>
-              Clear All Filters
-            </Button>
-          </motion.div>
-        )}
-
-        {/* Results Count */}
-        <motion.div 
-          className="results-info"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <span>{filteredEvents.length} hackathons found</span>
-        </motion.div>
-
-        {/* Events Grid/List */}
-        <motion.div 
-          className={`events-container ${viewMode}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          {filteredEvents.length === 0 ? (
-            <div className="no-results">
-              <h3>No hackathons found</h3>
-              <p>Try adjusting your filters or search terms</p>
-              <Button onClick={clearFilters}>Clear Filters</Button>
-            </div>
-          ) : (
-            filteredEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-              >
-                <EventCard event={event} variant={viewMode} />
-              </motion.div>
-            ))
+        {/* Content Layout with Sidebar */}
+        <div className="content-layout">
+          {/* Sidebar with Filter Panel */}
+          {showFilters && (
+            <motion.aside 
+              className="filters-sidebar"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FilterPanel 
+                filters={activeFilters}
+                onFilterChange={handleFilterChange}
+              />
+            </motion.aside>
           )}
-        </motion.div>
+
+          {/* Main Content */}
+          <div className="main-content">
+            {/* Results Count */}
+            <motion.div 
+              className="results-info"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <span>{filteredEvents.length} hackathons found</span>
+              {(activeFilters.locations.length > 0 || 
+                activeFilters.deadlines.length > 0 || 
+                activeFilters.difficulties.length > 0 || 
+                activeFilters.prizeRange.length > 0 || 
+                activeFilters.mode.length > 0) && (
+                <Button variant="ghost" size="small" onClick={clearFilters}>
+                  Clear All
+                </Button>
+              )}
+            </motion.div>
+
+            {/* Events Grid/List */}
+            <motion.div 
+              className={`events-container ${viewMode}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              {filteredEvents.length === 0 ? (
+                <div className="no-results">
+                  <h3>No hackathons found</h3>
+                  <p>Try adjusting your filters or search terms</p>
+                  <Button onClick={clearFilters}>Clear Filters</Button>
+                </div>
+              ) : (
+                filteredEvents.map((event, index) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                  >
+                    <EventCard event={event} variant={viewMode} />
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   );

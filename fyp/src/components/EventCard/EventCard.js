@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FiCalendar, FiMapPin, FiUsers, FiDollarSign, FiClock, FiBookmark, FiExternalLink } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../Button/Button';
+import CountdownTimer from '../CountdownTimer/CountdownTimer';
 import './EventCard.css';
 
 const EventCard = ({ event, variant = 'default' }) => {
@@ -27,17 +28,36 @@ const EventCard = ({ event, variant = 'default' }) => {
 
   const handleApply = (e) => {
     e.stopPropagation();
-    if (!user) {
-      // Redirect to login or show auth modal
-      return;
-    }
     
-    addApplication({
-      eventId: event.id,
-      eventTitle: event.title,
-      eventType: event.type,
-      companyName: event.company || event.organizer
-    });
+    // If event has a registration link, open it directly
+    if (event.registrationLink || event.applyLink || event.website) {
+      const link = event.registrationLink || event.applyLink || event.website;
+      window.open(link, '_blank');
+      
+      // Also track internally if user is logged in
+      if (user) {
+        addApplication({
+          eventId: event.id,
+          eventTitle: event.title,
+          eventType: event.type,
+          companyName: event.company || event.organizer || event.organization
+        });
+      }
+    } else {
+      // Fallback: just track if user is logged in
+      if (!user) {
+        // Redirect to login or show auth modal
+        alert('Please login to apply');
+        return;
+      }
+      
+      addApplication({
+        eventId: event.id,
+        eventTitle: event.title,
+        eventType: event.type,
+        companyName: event.company || event.organizer || event.organization
+      });
+    }
   };
 
   const formatDate = (dateString) => {
@@ -97,7 +117,18 @@ const EventCard = ({ event, variant = 'default' }) => {
 
   const getVenueImage = (location) => {
     if (!location) return null;
-    const loc = location.toLowerCase();
+    
+    // Handle both string and object location formats
+    let loc = '';
+    if (typeof location === 'string') {
+      loc = location.toLowerCase();
+    } else if (typeof location === 'object') {
+      // Combine city and venue for matching
+      loc = `${location.city || ''} ${location.venue || ''}`.toLowerCase();
+    } else {
+      return null;
+    }
+    
     if (loc.includes('bkc') || loc.includes('bandra kurla')) return '/images/bkc-venue.svg';
     if (loc.includes('iit') || loc.includes('powai')) return '/images/iit-campus-venue.svg';
     if (loc.includes('lower parel') || loc.includes('co-work') || loc.includes('workspace')) return '/images/coworking-venue.svg';
@@ -127,7 +158,7 @@ const EventCard = ({ event, variant = 'default' }) => {
           <div className="venue-overlay">
             <img 
               src={getVenueImage(event.location)} 
-              alt={`${event.location} venue`}
+              alt={`${typeof event.location === 'string' ? event.location : event.location?.city} venue`}
               className="venue-image"
             />
           </div>
@@ -197,7 +228,11 @@ const EventCard = ({ event, variant = 'default' }) => {
           
           <div className="detail-item">
             <FiMapPin size={16} />
-            <span>{event.location}</span>
+            <span>
+              {typeof event.location === 'string' 
+                ? event.location 
+                : `${event.location?.city || ''}, ${event.location?.mode || 'In-person'}`}
+            </span>
           </div>
           
           <div className="detail-item">
@@ -213,17 +248,8 @@ const EventCard = ({ event, variant = 'default' }) => {
           )}
         </div>
 
-        {/* Deadline Warning */}
-        {!isExpired && (
-          <div className={`deadline-info ${isUrgent ? 'urgent' : ''}`}>
-            <FiClock size={16} />
-            <span>
-              {daysLeft === 0 ? 'Due today' : 
-               daysLeft === 1 ? '1 day left' : 
-               `${daysLeft} days left`}
-            </span>
-          </div>
-        )}
+        {/* Countdown Timer */}
+        <CountdownTimer deadline={event.deadline} />
 
         {isExpired && (
           <div className="deadline-info expired">
