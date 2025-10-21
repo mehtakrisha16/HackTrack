@@ -29,9 +29,10 @@ const EventCard = ({ event, variant = 'default' }) => {
   const handleApply = (e) => {
     e.stopPropagation();
     
-    // If event has a registration link, open it directly
-    if (event.registrationLink || event.applyLink || event.website) {
-      const link = event.registrationLink || event.applyLink || event.website;
+    // Priority order: applicationLink > registrationLink > applyLink > website
+    const link = event.applicationLink || event.registrationLink || event.applyLink || event.website || event.url;
+    
+    if (link) {
       window.open(link, '_blank');
       
       // Also track internally if user is logged in
@@ -57,15 +58,32 @@ const EventCard = ({ event, variant = 'default' }) => {
         eventType: event.type,
         companyName: event.company || event.organizer || event.organization
       });
+      alert('Application recorded! Check your dashboard for tracking.');
     }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'TBD';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
     return date.toLocaleDateString('en-IN', { 
       month: 'short', 
       day: 'numeric', 
       year: 'numeric',
+      timeZone: 'Asia/Kolkata'
+    });
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'TBD';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    return date.toLocaleDateString('en-IN', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
       timeZone: 'Asia/Kolkata'
     });
   };
@@ -237,13 +255,23 @@ const EventCard = ({ event, variant = 'default' }) => {
           
           <div className="detail-item">
             <FiCalendar size={16} />
-            <span>{formatDate(event.startDate)}</span>
+            <span>
+              {event.startDate && event.endDate ? 
+                `${formatDate(event.startDate)} - ${formatDate(event.endDate)}` :
+                formatDate(event.startDate || event.postedDate)
+              }
+            </span>
           </div>
 
-          {(event.prize || event.salary) && (
+          <div className="detail-item">
+            <FiClock size={16} />
+            <span>Deadline: {formatDate(event.deadline || event.registrationDeadline)}</span>
+          </div>
+
+          {(event.prize || event.salary || event.stipend) && (
             <div className="detail-item">
               <FiDollarSign size={16} />
-              <span>{formatCurrency(event.prize || event.salary)}</span>
+              <span>{formatCurrency(event.prize || event.salary || event.stipend)}</span>
             </div>
           )}
         </div>
@@ -264,15 +292,17 @@ const EventCard = ({ event, variant = 'default' }) => {
               onClick={handleApply}
               disabled={!user}
               fullWidth
+              icon={<FiExternalLink size={16} />}
             >
-              Apply Now
+              {event.applicationLink || event.registrationLink || event.applyLink ? 
+                'Apply Now' : 'Register Interest'}
             </Button>
           )}
           
           <Button 
             variant="outline" 
             icon={<FiExternalLink size={16} />}
-            onClick={() => window.open(event.url, '_blank')}
+            onClick={() => window.open(event.url || event.sourceUrl || event.applicationLink, '_blank')}
           >
             View Details
           </Button>
