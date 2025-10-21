@@ -130,9 +130,103 @@ router.get('/', optionalAuth, async (req, res) => {
   }
 });
 
+// @route   GET /api/events/saved
+// @desc    Get user's saved events
+// @access  Private
+// IMPORTANT: Must be before /:id route to avoid route conflict
+router.get('/saved', protect, async (req, res) => {
+  try {
+    // In a real implementation, fetch saved events from database
+    // For now, return empty array to prevent errors
+    console.log('📌 GET /api/events/saved - Returning empty saved events');
+    res.status(200).json({
+      success: true,
+      savedEvents: [],
+      count: 0
+    });
+
+  } catch (error) {
+    console.error('Get saved events error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @route   GET /api/events/categories/list
+// @desc    Get all event categories
+// @access  Public
+// IMPORTANT: Must be before /:id route to avoid route conflict
+router.get('/categories/list', (req, res) => {
+  try {
+    const categories = [
+      'Tech Talk',
+      'Networking',
+      'Workshop',
+      'Conference',
+      'Seminar',
+      'Competition',
+      'Career Fair',
+      'Cultural'
+    ];
+
+    res.status(200).json({
+      success: true,
+      categories
+    });
+
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @route   GET /api/events/stats/mumbai
+// @desc    Get Mumbai events statistics
+// @access  Public
+// IMPORTANT: Must be before /:id route to avoid route conflict
+router.get('/stats/mumbai', (req, res) => {
+  try {
+    const stats = {
+      totalEvents: mockEvents.length,
+      upcomingEvents: mockEvents.filter(e => e.status === 'upcoming').length,
+      totalRegistrations: mockEvents.reduce((total, event) => total + event.registered, 0),
+      averageCapacity: Math.round(mockEvents.reduce((total, event) => total + event.capacity, 0) / mockEvents.length),
+      popularCategories: [
+        { category: 'Tech Talk', count: 1 },
+        { category: 'Networking', count: 1 }
+      ],
+      popularVenues: [
+        { venue: 'IIT Bombay', count: 1 },
+        { venue: 'WeWork BKC', count: 1 }
+      ]
+    };
+
+    res.status(200).json({
+      success: true,
+      stats
+    });
+
+  } catch (error) {
+    console.error('Get events stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // @route   GET /api/events/:id
 // @desc    Get single event by ID
 // @access  Public
+// IMPORTANT: This route must be LAST among GET routes as it's a catch-all for IDs
 router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const event = mockEvents.find(e => e.id === parseInt(req.params.id));
@@ -191,72 +285,6 @@ router.post('/:id/register', protect, async (req, res) => {
 
   } catch (error) {
     console.error('Event registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-// @route   GET /api/events/categories/list
-// @desc    Get all event categories
-// @access  Public
-router.get('/categories/list', (req, res) => {
-  try {
-    const categories = [
-      'Tech Talk',
-      'Networking',
-      'Workshop',
-      'Conference',
-      'Seminar',
-      'Competition',
-      'Career Fair',
-      'Cultural'
-    ];
-
-    res.status(200).json({
-      success: true,
-      categories
-    });
-
-  } catch (error) {
-    console.error('Get categories error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-// @route   GET /api/events/stats/mumbai
-// @desc    Get Mumbai events statistics
-// @access  Public
-router.get('/stats/mumbai', (req, res) => {
-  try {
-    const stats = {
-      totalEvents: mockEvents.length,
-      upcomingEvents: mockEvents.filter(e => e.status === 'upcoming').length,
-      totalRegistrations: mockEvents.reduce((total, event) => total + event.registered, 0),
-      averageCapacity: Math.round(mockEvents.reduce((total, event) => total + event.capacity, 0) / mockEvents.length),
-      popularCategories: [
-        { category: 'Tech Talk', count: 1 },
-        { category: 'Networking', count: 1 }
-      ],
-      popularVenues: [
-        { venue: 'IIT Bombay', count: 1 },
-        { venue: 'WeWork BKC', count: 1 }
-      ]
-    };
-
-    res.status(200).json({
-      success: true,
-      stats
-    });
-
-  } catch (error) {
-    console.error('Get events stats error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

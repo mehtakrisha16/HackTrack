@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiPhone } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
+import OTPLogin from '../../components/OTPLogin/OTPLogin';
 import { toast } from 'react-hot-toast';
 import './Auth.css';
 
@@ -14,6 +15,7 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'otp'
   const { login, setUser } = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -81,69 +83,91 @@ const Login = () => {
             <p>Sign in to discover opportunities across India</p>
           </div>
 
-          {/* Email Login Only */}
-
-          {/* Login Form */}
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
-              <div className="input-wrapper">
-                <FiMail className="input-icon" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="input-wrapper">
-                <FiLock className="input-icon" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  required
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-options">
-              <label className="checkbox-label">
-                <input type="checkbox" />
-                <span className="checkmark"></span>
-                Remember me
-              </label>
-              <Link to="/forgot-password" className="forgot-link">
-                Forgot password?
-              </Link>
-            </div>
-
-            <Button 
-              type="submit" 
-              loading={isLoading}
-              fullWidth 
-              size="large"
+          {/* Login Method Toggle */}
+          <div className="login-method-toggle">
+            <button
+              type="button"
+              className={`method-btn ${loginMethod === 'email' ? 'active' : ''}`}
+              onClick={() => setLoginMethod('email')}
             >
-              Sign In
-            </Button>
-          </form>
+              <FiMail size={18} />
+              Email
+            </button>
+            <button
+              type="button"
+              className={`method-btn ${loginMethod === 'otp' ? 'active' : ''}`}
+              onClick={() => setLoginMethod('otp')}
+            >
+              <FiPhone size={18} />
+              Mobile OTP
+            </button>
+          </div>
+
+          {/* Conditional Login Forms */}
+          {loginMethod === 'email' ? (
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <div className="input-wrapper">
+                  <FiMail className="input-icon" />
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <div className="input-wrapper">
+                  <FiLock className="input-icon" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-options">
+                <label className="checkbox-label">
+                  <input type="checkbox" />
+                  <span className="checkmark"></span>
+                  Remember me
+                </label>
+                <Link to="/forgot-password" className="forgot-link">
+                  Forgot password?
+                </Link>
+              </div>
+
+              <Button 
+                type="submit" 
+                loading={isLoading}
+                fullWidth 
+                size="large"
+              >
+                Sign In
+              </Button>
+            </form>
+          ) : (
+            <OTPLogin onBack={() => setLoginMethod('email')} />
+          )}
 
           {/* Footer */}
           <div className="auth-footer">

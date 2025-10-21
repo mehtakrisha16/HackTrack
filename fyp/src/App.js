@@ -7,6 +7,7 @@ import Hackathons from './pages/Hackathons/Hackathons';
 import Internships from './pages/Internships/Internships';
 import Events from './pages/Events/Events';
 import Dashboard from './pages/Dashboard/Dashboard';
+import FinTech from './pages/FinTech/FinTech';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import CompleteProfile from './pages/CompleteProfile/CompleteProfile';
@@ -24,6 +25,7 @@ function App() {
             <Route path="internships" element={<Internships />} />
             <Route path="events" element={<Events />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="fintech" element={<FinTech />} />
             <Route path="profile" element={<Profile />} />
           </Route>
           <Route path="/login" element={<Login />} />

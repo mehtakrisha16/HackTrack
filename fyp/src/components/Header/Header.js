@@ -18,6 +18,7 @@ const Header = () => {
     { name: 'Hackathons', path: '/hackathons' },
     { name: 'Internships', path: '/internships' },
     { name: 'College Events', path: '/events' },
+    { name: 'FinTech Hub', path: '/fintech' },
     { name: 'Dashboard', path: '/dashboard' }
   ];
 

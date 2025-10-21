@@ -27,18 +27,22 @@ const Dashboard = () => {
       
       // Load personalized recommendations
       const personalizedRecs = await recommendationEngine.getPersonalizedRecommendations('all', 6);
-      setRecommendations(personalizedRecs.recommendations || []);
+      setRecommendations(personalizedRecs?.recommendations || []);
       
       // Load user statistics
       try {
         const stats = await dataService.getUserStats();
-        setUserStatistics(stats.data || userStats);
+        setUserStatistics(stats?.data || userStats);
       } catch (error) {
         console.log('Using fallback stats');
+        setUserStatistics(userStats);
       }
       
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      // Set empty recommendations on error to prevent undefined
+      setRecommendations([]);
+      setUserStatistics(userStats);
     } finally {
       setLoading(false);
     }

@@ -177,6 +177,44 @@
   font-weight: 500;
 }
 
+/* Login Method Toggle */
+.login-method-toggle {
+  display: flex;
+  background: var(--background-secondary);
+  border-radius: var(--border-radius);
+  padding: 0.25rem;
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-light);
+}
+
+.method-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: calc(var(--border-radius) - 0.25rem);
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.method-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.method-btn:not(.active):hover {
+  color: var(--text-primary);
+  background: var(--background-tertiary);
+}
+
 /* Social Login */
 .social-login {
   display: flex;

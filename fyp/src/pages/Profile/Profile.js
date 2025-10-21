@@ -18,10 +18,24 @@ import {
   FiGithub,
   FiGlobe,
   FiTwitter,
-  FiLink
+  FiLink,
+  FiAward,
+  FiTrendingUp,
+  FiClock,
+  FiBarChart2,
+  FiTarget,
+  FiBell,
+  FiShield
 } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
+import BadgeSystem from '../../components/BadgeSystem';
+import ReputationScore from '../../components/ReputationScore';
+import CareerTimeline from '../../components/CareerTimeline';
+import PerformanceCharts from '../../components/PerformanceCharts';
+import SkillProgression from '../../components/SkillProgression';
+import NotificationCenter from '../../components/NotificationCenter';
+import PrivacyControls from '../../components/PrivacyControls';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
@@ -33,6 +47,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
@@ -444,12 +459,88 @@ const Profile = () => {
         </motion.div>
 
         {/* Profile Content */}
+        
+        {/* Profile Tabs */}
         <motion.div 
-          className="profile-content"
+          className="profile-tabs"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
+          <div className="tab-buttons">
+            <button
+              className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              <FiUser size={18} />
+              Profile Details
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'reputation' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reputation')}
+            >
+              <FiTrendingUp size={18} />
+              Reputation
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+              onClick={() => setActiveTab('timeline')}
+            >
+              <FiClock size={18} />
+              Timeline
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
+              onClick={() => setActiveTab('analytics')}
+            >
+              <FiBarChart2 size={18} />
+              Analytics
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'skills' ? 'active' : ''}`}
+              onClick={() => setActiveTab('skills')}
+            >
+              <FiTarget size={18} />
+              Skills
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'notifications' ? 'active' : ''}`}
+              onClick={() => setActiveTab('notifications')}
+            >
+              <FiBell size={18} />
+              Notifications
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'privacy' ? 'active' : ''}`}
+              onClick={() => setActiveTab('privacy')}
+            >
+              <FiShield size={18} />
+              Privacy
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'badges' ? 'active' : ''}`}
+              onClick={() => setActiveTab('badges')}
+            >
+              <FiAward size={18} />
+              Achievements
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Tab Content */}
+        <motion.div 
+          key={activeTab}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {activeTab === 'profile' ? (
+            <motion.div 
+              className="profile-content"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
           <div className="profile-grid">
             {/* Personal Information */}
             <div className="profile-section">
@@ -839,6 +930,49 @@ Example: 'I'm a 3rd year Computer Science student at IIT Delhi passionate about 
               </div>
             </div>
           </div>
+            </motion.div>
+          ) : activeTab === 'reputation' ? (
+            <div className="profile-content">
+              <ReputationScore userActivity={{
+                hackathonsParticipated: user?.hackathonsParticipated || 0,
+                internshipsApplied: user?.internshipsApplied || 0,
+                eventsAttended: user?.eventsAttended || 0,
+                badgesUnlocked: user?.badgesUnlocked || 8,
+                currentStreak: user?.currentStreak || 5,
+                profileViews: user?.profileViews || 25,
+                applicationsSubmitted: user?.applicationsSubmitted || 3,
+                skillsVerified: user?.skillsVerified || profileData.skills.length,
+                loginStreak: user?.loginStreak || 7,
+                dataUpdates: user?.dataUpdates || 2,
+                platformUsageDays: user?.platformUsageDays || 15,
+                profile: profileData
+              }} />
+            </div>
+          ) : activeTab === 'timeline' ? (
+            <div className="profile-content">
+              <CareerTimeline user={user} />
+            </div>
+          ) : activeTab === 'analytics' ? (
+            <div className="profile-content">
+              <PerformanceCharts user={user} />
+            </div>
+          ) : activeTab === 'skills' ? (
+            <div className="profile-content">
+              <SkillProgression user={user} />
+            </div>
+          ) : activeTab === 'notifications' ? (
+            <div className="profile-content">
+              <NotificationCenter />
+            </div>
+          ) : activeTab === 'privacy' ? (
+            <div className="profile-content">
+              <PrivacyControls />
+            </div>
+          ) : (
+            <div className="profile-content">
+              <BadgeSystem />
+            </div>
+          )}
         </motion.div>
 
         {/* Profile Footer */}

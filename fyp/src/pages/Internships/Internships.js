@@ -5,14 +5,15 @@ import { AppContext } from '../../context/AppContext';
 import EventCard from '../../components/EventCard/EventCard';
 import Button from '../../components/Button/Button';
 import FilterPanel from '../../components/FilterPanel/FilterPanel';
-import { internships, difficulties, technologies, locations, states } from '../../data/mockData';
+import { internships, difficulties, technologies, locations, states, getOpportunitiesByType } from '../../data/mockData';
+import { useOpportunities } from '../../hooks/useOpportunities';
 import './Internships.css';
 
 const Internships = () => {
   const { filters, setFilters, searchQuery, setSearchQuery } = useContext(AppContext);
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(true); // Show filters by default
-  const [filteredEvents, setFilteredEvents] = useState(internships);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [activeFilters, setActiveFilters] = useState({
     locations: [],
     deadlines: [],
@@ -21,9 +22,94 @@ const Internships = () => {
     mode: []
   });
 
+  // Fetch real internship data
+  const { 
+    opportunities: realInternships, 
+    loading, 
+    error, 
+    refresh 
+  } = useOpportunities({
+    type: 'internship',
+    limit: 200
+  });
+
+  // Combine real scraped data with static real-world data
+  const allInternships = React.useMemo(() => {
+    // Get internships from real-world data
+    const staticInternships = getOpportunitiesByType('internship').map(internship => ({
+      id: internship.id,
+      title: internship.title,
+      description: internship.description,
+      company: internship.company,
+      location: internship.location,
+      startDate: internship.postedDate,
+      duration: '3 months',
+      stipend: internship.salary,
+      difficulty: internship.experience,
+      technologies: internship.skills || [],
+      category: internship.category,
+      applicationLink: internship.applicationLink,
+      deadline: internship.deadline,
+      remote: internship.remote || false,
+      urgent: internship.urgent || false,
+      rating: internship.rating || 4.0,
+      benefits: internship.benefits || [],
+      requirements: internship.requirements || []
+    }));
+
+    // Get internships from scraped API data  
+    const scrapedInternships = realInternships.map(internship => ({
+      id: internship._id || internship.id,
+      title: internship.title,
+      description: internship.description || 'Great internship opportunity to gain hands-on experience',
+      company: internship.company,
+      location: internship.location || 'Remote',
+      startDate: internship.postedDate || new Date().toISOString(),
+      duration: '3 months',
+      stipend: internship.salary || 'Stipend Available',
+      difficulty: internship.experience || 'Entry Level',
+      technologies: internship.skills || [],
+      category: internship.category || 'general',
+      applicationLink: internship.applicationLink,
+      deadline: internship.deadline || new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+      remote: internship.remote || false,
+      urgent: internship.urgent || false,
+      rating: internship.rating || 4.0
+    }));
+
+    // Combine static real-world internships with scraped internships, prioritizing static
+    const combinedInternships = [...staticInternships, ...scrapedInternships];
+    
+    // Remove duplicates based on title similarity
+    const uniqueInternships = [];
+    const seenTitles = new Set();
+    
+    combinedInternships.forEach(internship => {
+      const normalizedTitle = internship.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!seenTitles.has(normalizedTitle)) {
+        seenTitles.add(normalizedTitle);
+        uniqueInternships.push(internship);
+      }
+    });
+
+    // Add a few mock internships if we have less than 15 internships
+    const finalInternships = uniqueInternships.length < 15 ? [...uniqueInternships, ...internships.slice(0, 15 - uniqueInternships.length)] : uniqueInternships;
+    
+    return finalInternships;
+  }, [realInternships]);
+
+  // Auto-refresh every 10 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refresh();
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [refresh]);
+
   // Filter events based on search and filters
   useEffect(() => {
-    let filtered = internships;
+    let filtered = allInternships;
 
     // Apply search filter
     if (searchQuery) {
@@ -120,7 +206,7 @@ const Internships = () => {
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, activeFilters]);
+  }, [allInternships, searchQuery, activeFilters]);
 
   const handleFilterChange = (newFilters) => {
     setActiveFilters(newFilters);

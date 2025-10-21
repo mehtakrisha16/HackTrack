@@ -20,6 +20,7 @@ const eventRoutes = require('./routes/events');
 const hackathonRoutes = require('./routes/hackathons');
 const internshipRoutes = require('./routes/internships');
 const applicationRoutes = require('./routes/applications');
+const opportunityRoutes = require('./routes/opportunities');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -101,6 +102,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/hackathons', hackathonRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api', opportunityRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {

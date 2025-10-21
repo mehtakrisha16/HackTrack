@@ -13,7 +13,11 @@
     "db:setup": "node scripts/seedDatabase.js",
     "db:reset": "node scripts/seedDatabase.js --reset",
     "db:test": "node scripts/test-atlas.js",
-    "db:template": "node scripts/test-atlas.js --template"
+    "db:template": "node scripts/test-atlas.js --template",
+    "scrape": "node src/services/opportunityScraper.js",
+    "scrape:dev": "nodemon src/services/opportunityScraper.js",
+    "scrape:standalone": "node src/services/standaloneScraper.js",
+    "scrape:service": "node src/services/standaloneScraper.js"
   },
   "keywords": [
     "hacktrack",
@@ -42,7 +46,11 @@
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.4"
+    "nodemailer": "^6.9.4",
+    "puppeteer": "^21.5.2",
+    "cheerio": "^1.0.0-rc.12",
+    "node-cron": "^3.0.3",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",

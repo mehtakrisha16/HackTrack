@@ -1,17 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiSearch, FiFilter, FiGrid, FiList } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiGrid, FiList, FiLoader } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import EventCard from '../../components/EventCard/EventCard';
 import Button from '../../components/Button/Button';
 import FilterPanel from '../../components/FilterPanel/FilterPanel';
-import { hackathons, difficulties, technologies, locations, states } from '../../data/mockData';
+import { hackathons, difficulties, technologies, locations, states, getOpportunitiesByType } from '../../data/mockData';
+import { useOpportunities } from '../../hooks/useOpportunities';
 import './Hackathons.css';
 
 const Hackathons = () => {
   const { filters, setFilters, searchQuery, setSearchQuery } = useContext(AppContext);
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(true); // Show filters by default
+  const [showFilters, setShowFilters] = useState(true);
   const [filteredEvents, setFilteredEvents] = useState(hackathons);
   const [activeFilters, setActiveFilters] = useState({
     locations: [],
@@ -21,9 +22,104 @@ const Hackathons = () => {
     mode: []
   });
 
+  // Fetch real hackathon data
+  const { 
+    opportunities: realHackathons, 
+    loading, 
+    error, 
+    refresh 
+  } = useOpportunities({
+    type: 'hackathon',
+    limit: 200
+  });
+
+  // Combine real scraped data with static real-world data
+  const allHackathons = React.useMemo(() => {
+    // Get hackathons from real-world data
+    const staticHackathons = getOpportunitiesByType('hackathon').map(hackathon => ({
+      id: hackathon.id,
+      title: hackathon.title,
+      description: hackathon.description,
+      organizer: hackathon.company,
+      location: hackathon.location,
+      startDate: hackathon.postedDate,
+      endDate: hackathon.deadline,
+      registrationDeadline: hackathon.deadline,
+      prizePool: hackathon.salary,
+      difficulty: hackathon.experience,
+      technologies: hackathon.skills || [],
+      category: hackathon.category,
+      url: hackathon.applicationLink,
+      sourceUrl: hackathon.sourceUrl,
+      remote: hackathon.remote || false,
+      urgent: hackathon.urgent || false,
+      rating: hackathon.rating || 4.0,
+      registrationFee: 0,
+      benefits: hackathon.benefits || [],
+      requirements: hackathon.requirements || [],
+      mode: hackathon.remote ? 'Online' : 'Offline',
+      maxTeamSize: 4,
+      minTeamSize: 1,
+      participantCount: Math.floor(Math.random() * 1000) + 100
+    }));
+
+    // Get hackathons from scraped API data  
+    const scrapedHackathons = realHackathons.map(hackathon => ({
+      id: hackathon._id || hackathon.id,
+      title: hackathon.title,
+      description: hackathon.description || 'Join this exciting hackathon and showcase your skills',
+      organizer: hackathon.company,
+      location: hackathon.location || 'Global',
+      startDate: hackathon.postedDate || new Date().toISOString(),
+      endDate: hackathon.deadline || new Date(Date.now() + 14*24*60*60*1000).toISOString(),
+      registrationDeadline: hackathon.deadline || new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+      prizePool: hackathon.salary || 'Prizes Available',
+      difficulty: hackathon.experience === 'Any Level' ? 'Beginner' : (hackathon.experience || 'Intermediate'),
+      technologies: hackathon.skills || [],
+      category: hackathon.category || 'general',
+      mode: hackathon.remote ? 'Online' : 'Offline',
+      registrationLink: hackathon.applicationLink,
+      maxTeamSize: 4,
+      minTeamSize: 1,
+      participantCount: Math.floor(Math.random() * 1000) + 100,
+      isLive: true,
+      sourceUrl: hackathon.sourceUrl,
+      themes: hackathon.skills || ['Innovation', 'Technology']
+    }));
+
+    // Combine static real-world hackathons with scraped hackathons, prioritizing static
+    const combinedHackathons = [...staticHackathons, ...scrapedHackathons];
+    
+    // Remove duplicates based on title similarity
+    const uniqueHackathons = [];
+    const seenTitles = new Set();
+    
+    combinedHackathons.forEach(hackathon => {
+      const normalizedTitle = hackathon.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!seenTitles.has(normalizedTitle)) {
+        seenTitles.add(normalizedTitle);
+        uniqueHackathons.push(hackathon);
+      }
+    });
+
+    // Add a few mock hackathons if we have less than 15 hackathons
+    const finalHackathons = uniqueHackathons.length < 15 ? [...uniqueHackathons, ...hackathons.slice(0, 15 - uniqueHackathons.length)] : uniqueHackathons;
+    
+    return finalHackathons;
+  }, [realHackathons]);
+
+  // Auto-refresh every 10 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refresh();
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [refresh]);
+
   // Filter events based on search and filters
   useEffect(() => {
-    let filtered = hackathons;
+    let filtered = allHackathons;
 
     // Apply search filter
     if (searchQuery) {
@@ -120,7 +216,7 @@ const Hackathons = () => {
     }
 
     setFilteredEvents(filtered);
-  }, [searchQuery, activeFilters]);
+  }, [searchQuery, activeFilters, allHackathons]);
 
   const handleFilterChange = (newFilters) => {
     setActiveFilters(newFilters);

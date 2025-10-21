@@ -31,17 +31,38 @@ class RecommendationEngine {
       }
 
       // Fetch user activity history
-      const applications = await dataService.getApplications();
-      const savedEvents = await dataService.getSavedEvents();
-      
-      this.userHistory = {
-        appliedEvents: applications.data || [],
-        savedEvents: savedEvents.data || [],
-        viewedEvents: JSON.parse(localStorage.getItem('viewedEvents') || '[]')
-      };
+      try {
+        const applications = await dataService.getApplications();
+        const savedEvents = await dataService.getSavedEvents();
+        
+        this.userHistory = {
+          appliedEvents: applications?.data || [],
+          savedEvents: savedEvents?.data || savedEvents?.savedEvents || [],
+          viewedEvents: JSON.parse(localStorage.getItem('viewedEvents') || '[]')
+        };
+      } catch (historyError) {
+        console.log('Could not load user history, using defaults');
+        this.userHistory = {
+          appliedEvents: [],
+          savedEvents: [],
+          viewedEvents: []
+        };
+      }
 
     } catch (error) {
       console.error('Error initializing user for recommendations:', error);
+      // Set default preferences to prevent crashes
+      this.userPreferences = {
+        skills: [],
+        interests: [],
+        location: '',
+        experienceLevel: 'beginner'
+      };
+      this.userHistory = {
+        appliedEvents: [],
+        savedEvents: [],
+        viewedEvents: []
+      };
     }
   }
 
@@ -123,11 +144,33 @@ class RecommendationEngine {
 
     // Location preference
     if (this.userPreferences.location && event.location) {
-      const locationMatch = event.location.toLowerCase().includes(
-        this.userPreferences.location.toLowerCase()
-      ) || event.location.toLowerCase().includes('online');
-      
-      if (locationMatch) score += weights.location * 100;
+      try {
+        // Handle both string and object formats for location
+        let eventLocationStr = '';
+        if (typeof event.location === 'string') {
+          eventLocationStr = event.location.toLowerCase();
+        } else if (typeof event.location === 'object' && event.location !== null) {
+          eventLocationStr = (event.location.city || event.location.venue || '').toLowerCase();
+        }
+        
+        let userLocationStr = '';
+        if (typeof this.userPreferences.location === 'string') {
+          userLocationStr = this.userPreferences.location.toLowerCase();
+        } else if (typeof this.userPreferences.location === 'object' && this.userPreferences.location !== null) {
+          userLocationStr = (this.userPreferences.location.city || '').toLowerCase();
+        }
+        
+        if (eventLocationStr && userLocationStr) {
+          const locationMatch = eventLocationStr.includes(userLocationStr) || 
+                               eventLocationStr.includes('online') ||
+                               eventLocationStr.includes('nationwide');
+          
+          if (locationMatch) score += weights.location * 100;
+        }
+      } catch (locationError) {
+        // Skip location scoring if there's an error
+        console.log('Skipping location matching due to error');
+      }
     }
 
     // Difficulty matching

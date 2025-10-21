@@ -12,18 +12,38 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: function() {
+      return !this.phone && !this.googleId; // Email not required if using phone or Google auth
+    },
     unique: true,
+    sparse: true,
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  },
+  phone: {
+    type: String,
+    unique: true,
+    sparse: true,
+    match: [/^[6-9]\d{9}$/, 'Please enter a valid 10-digit Indian mobile number']
   },
   password: {
     type: String,
     required: function() {
-      return !this.googleId; // Password not required if signing up with Google
+      return !this.googleId && !this.phone; // Password not required if using Google or phone auth
     },
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false // Don't include password in queries by default
+  },
+  
+  // Authentication methods
+  authMethod: {
+    type: String,
+    enum: ['email', 'google', 'otp'],
+    default: 'email'
+  },
+  isPhoneVerified: {
+    type: Boolean,
+    default: false
   },
   
   // Google OAuth

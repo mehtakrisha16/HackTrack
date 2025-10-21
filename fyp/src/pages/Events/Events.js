@@ -1,17 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiSearch, FiFilter, FiGrid, FiList } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiGrid, FiList, FiLoader } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import EventCard from '../../components/EventCard/EventCard';
 import Button from '../../components/Button/Button';
 import FilterPanel from '../../components/FilterPanel/FilterPanel';
-import { events } from '../../data/mockData';
+import { events, getOpportunitiesByType } from '../../data/mockData';
+import { useOpportunities } from '../../hooks/useOpportunities';
 import './Events.css';
 
 const Events = () => {
   const { searchQuery, setSearchQuery } = useContext(AppContext);
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(true); // Show filters by default
+  const [showFilters, setShowFilters] = useState(true);
   const [filteredEvents, setFilteredEvents] = useState(events);
   const [activeFilters, setActiveFilters] = useState({
     locations: [],
@@ -21,9 +22,99 @@ const Events = () => {
     mode: []
   });
 
+  // Fetch real events data
+  const { 
+    opportunities: realEvents, 
+    loading, 
+    error, 
+    refresh 
+  } = useOpportunities({
+    type: 'event',
+    limit: 200
+  });
+
+  // Combine real scraped data with static real-world data
+  const allEvents = React.useMemo(() => {
+    // Get events from real-world data
+    const staticEvents = getOpportunitiesByType('event').map(event => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      organizer: event.company,
+      location: event.location,
+      startDate: event.postedDate,
+      endDate: event.deadline,
+      registrationDeadline: event.deadline,
+      prizePool: event.salary,
+      difficulty: event.experience,
+      technologies: event.skills || [],
+      category: event.category,
+      url: event.applicationLink,
+      sourceUrl: event.sourceUrl,
+      remote: event.remote || false,
+      urgent: event.urgent || false,
+      rating: event.rating || 4.0,
+      registrationFee: 0,
+      benefits: event.benefits || [],
+      requirements: event.requirements || []
+    }));
+
+    // Get events from scraped API data  
+    const scrapedEvents = realEvents.map(event => ({
+      id: event._id || event.id,
+      title: event.title,
+      description: event.description || 'Join this exciting event opportunity',
+      organizer: event.company,
+      location: event.location || 'TBD',
+      startDate: event.postedDate || new Date().toISOString(),
+      endDate: event.deadline || new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+      registrationDeadline: event.deadline || new Date(Date.now() + 3*24*60*60*1000).toISOString(),
+      prizePool: event.salary || 'TBD',
+      difficulty: event.experience === 'Any Level' ? 'Beginner' : event.experience,
+      technologies: event.skills || [],
+      category: event.category || 'general',
+      mode: event.remote ? 'Online' : 'Offline',
+      registrationLink: event.applicationLink,
+      maxTeamSize: 4,
+      minTeamSize: 1,
+      participantCount: Math.floor(Math.random() * 500) + 50,
+      rating: event.rating || 4.0,
+      urgent: event.urgent || false
+    }));
+
+    // Combine static real-world events with scraped events, prioritizing static
+    const combinedEvents = [...staticEvents, ...scrapedEvents];
+    
+    // Remove duplicates based on title similarity
+    const uniqueEvents = [];
+    const seenTitles = new Set();
+    
+    combinedEvents.forEach(event => {
+      const normalizedTitle = event.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!seenTitles.has(normalizedTitle)) {
+        seenTitles.add(normalizedTitle);
+        uniqueEvents.push(event);
+      }
+    });
+
+    // Add a few mock events if we have less than 15 events
+    const finalEvents = uniqueEvents.length < 15 ? [...uniqueEvents, ...events.slice(0, 15 - uniqueEvents.length)] : uniqueEvents;
+    
+    return finalEvents;
+  }, [realEvents]);
+
+  // Auto-refresh every 10 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refresh();
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [refresh]);
+
   // Filter events based on search and filters
   useEffect(() => {
-    let filtered = events;
+    let filtered = allEvents;
 
     // Apply search filter
     if (searchQuery) {

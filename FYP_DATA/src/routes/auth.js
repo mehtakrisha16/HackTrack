@@ -11,6 +11,11 @@ const {
   forgotPassword,
   resetPassword
 } = require('../controllers/authController');
+const {
+  sendOTP,
+  verifyOTP,
+  resendOTP
+} = require('../controllers/otpController');
 const { protect, authRateLimit } = require('../middleware/auth');
 
 const router = express.Router();
@@ -175,5 +180,40 @@ router.get('/verify-token', protect, (req, res) => {
     user: req.user.getPublicProfile()
   });
 });
+
+// OTP Authentication Routes
+// @route   POST /api/auth/send-otp
+// @desc    Send OTP to mobile number
+// @access  Public
+router.post('/send-otp', strictAuthLimit, [
+  body('phone')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please enter a valid 10-digit Indian mobile number')
+], sendOTP);
+
+// @route   POST /api/auth/verify-otp
+// @desc    Verify OTP and login/register user
+// @access  Public
+router.post('/verify-otp', strictAuthLimit, [
+  body('phone')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please enter a valid 10-digit Indian mobile number'),
+  body('otp')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('OTP must be 6 digits'),
+  body('name')
+    .optional()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters')
+], verifyOTP);
+
+// @route   POST /api/auth/resend-otp
+// @desc    Resend OTP to mobile number
+// @access  Public
+router.post('/resend-otp', strictAuthLimit, [
+  body('phone')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Please enter a valid 10-digit Indian mobile number')
+], resendOTP);
 
 module.exports = router;

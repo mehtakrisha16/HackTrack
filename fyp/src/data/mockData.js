@@ -1,6 +1,7 @@
 // Mock data for the HackTrack application
 // Import real current opportunities with actual registration links
 import { allRealOpportunities, realHackathons2025, realInternships2025, realEvents2025 } from './currentOpportunities2025';
+import realWorldOpportunities from './realWorldOpportunities';
 
 export const featuredEvents = [
   {
@@ -437,3 +438,35 @@ export const mumbaiStartups = [
   'Kotak Mahindra Bank',
   'Pine Labs'
 ];
+
+// Enhanced opportunities combining mock data with real-world data
+export const getAllOpportunities = () => {
+  const allOpportunities = [
+    ...allRealOpportunities,
+    ...realWorldOpportunities.internships,
+    ...realWorldOpportunities.hackathons,
+    ...realWorldOpportunities.events,
+    ...realWorldOpportunities.fintech
+  ];
+  
+  return allOpportunities;
+};
+
+export const getOpportunitiesByType = (type) => {
+  const allOpps = getAllOpportunities();
+  return allOpps.filter(opp => opp.type === type);
+};
+
+export const getFintechOpportunities = () => {
+  const allOpps = getAllOpportunities();
+  const fintechKeywords = ['fintech', 'payment', 'bank', 'financial', 'razorpay', 'paytm', 'phonepe', 'cred', 'zerodha'];
+  
+  return allOpps.filter(opp => 
+    fintechKeywords.some(keyword => 
+      opp.company?.toLowerCase().includes(keyword) ||
+      opp.title?.toLowerCase().includes(keyword) ||
+      opp.description?.toLowerCase().includes(keyword) ||
+      opp.category?.toLowerCase().includes(keyword)
+    )
+  );
+};

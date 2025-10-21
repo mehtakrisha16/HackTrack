@@ -234,7 +234,8 @@ class DataService {
       return data;
     } catch (error) {
       console.error('Error fetching saved events:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent crashes
+      return { savedEvents: [], count: 0 };
     }
   }
 
