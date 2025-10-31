@@ -135,13 +135,27 @@ const FinTechHub = () => {
     { id: 'hackathon', name: 'Hackathons', icon: FiAward }
   ];
 
-  // Handle application click
+  // Handle application click with multiple link fallbacks
   const handleApplyClick = (opportunity) => {
-    if (opportunity.applicationLink) {
-      window.open(opportunity.applicationLink, '_blank');
-      toast.success(`Opening application for ${opportunity.title}`);
+    // Priority order: applicationLink > registrationLink > applyLink > website > sourceUrl
+    const link = opportunity.applicationLink || 
+                 opportunity.registrationLink || 
+                 opportunity.applyLink || 
+                 opportunity.website || 
+                 opportunity.url ||
+                 opportunity.sourceUrl;
+    
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer');
+      toast.success(`Opening application for ${opportunity.title}`, {
+        duration: 2000,
+        icon: '🚀'
+      });
     } else {
-      toast.error('Application link not available');
+      toast.error('Application link not available for this opportunity', {
+        duration: 3000,
+        icon: '⚠️'
+      });
     }
   };
 
