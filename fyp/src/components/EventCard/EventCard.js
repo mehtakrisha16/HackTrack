@@ -100,10 +100,19 @@ const EventCard = ({ event, variant = 'default' }) => {
     return amount;
   };
 
-  const getDaysUntilDeadline = (deadline) => {
+  const getDaysUntilDeadline = (event) => {
+    // Priority order: deadline > registrationDeadline > endDate > startDate
+    const deadlineDate = event.deadline || event.registrationDeadline || event.endDate || event.startDate;
+    
+    if (!deadlineDate) return null;
+    
     const today = new Date();
-    const deadlineDate = new Date(deadline);
-    const diffTime = deadlineDate - today;
+    today.setHours(0, 0, 0, 0); // Reset to start of day for accurate comparison
+    
+    const deadline = new Date(deadlineDate);
+    if (isNaN(deadline.getTime())) return null; // Invalid date
+    
+    const diffTime = deadline - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
@@ -153,9 +162,10 @@ const EventCard = ({ event, variant = 'default' }) => {
     return null;
   };
 
-  const daysLeft = getDaysUntilDeadline(event.deadline);
-  const isExpired = daysLeft < 0;
-  const isUrgent = daysLeft <= 7 && daysLeft > 0;
+  const daysLeft = getDaysUntilDeadline(event);
+  const isExpired = daysLeft !== null && daysLeft < 0;
+  const isUrgent = daysLeft !== null && daysLeft <= 7 && daysLeft > 0;
+  const hasDaysLeft = daysLeft !== null;
 
   return (
     <motion.div 
@@ -220,7 +230,7 @@ const EventCard = ({ event, variant = 'default' }) => {
           </span>
           
           {/* Days Left Badge */}
-          {!isExpired && (
+          {!isExpired && hasDaysLeft && (
             <span className={`status-badge days-badge ${isUrgent ? 'urgent' : 'normal'}`}>
               {daysLeft === 0 ? 'DUE TODAY' : 
                daysLeft === 1 ? '1 DAY LEFT' : 
@@ -277,7 +287,7 @@ const EventCard = ({ event, variant = 'default' }) => {
         </div>
 
         {/* Countdown Timer with Days Remaining */}
-        {!isExpired && (
+        {!isExpired && hasDaysLeft && (
           <div className="deadline-countdown">
             <div className="countdown-header">
               <FiClock size={18} />
@@ -288,7 +298,10 @@ const EventCard = ({ event, variant = 'default' }) => {
                 <span className="countdown-value">{daysLeft}</span>
                 <span className="countdown-unit">Days</span>
               </div>
-              <CountdownTimer deadline={event.deadline} compact={true} />
+              <CountdownTimer 
+                deadline={event.deadline || event.registrationDeadline || event.endDate || event.startDate} 
+                compact={true} 
+              />
             </div>
             {isUrgent && (
               <div className="urgency-message">
