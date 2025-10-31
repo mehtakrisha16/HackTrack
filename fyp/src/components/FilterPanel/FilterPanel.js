@@ -6,13 +6,15 @@ import './FilterPanel.css';
 const FilterPanel = ({ onFilterChange, opportunityType = 'all' }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
+    domain: true,
     location: true,
     deadline: true,
-    difficulty: true,
+    difficulty: false,
     prize: false
   });
 
   const [filters, setFilters] = useState({
+    domains: [],
     locations: [],
     deadlines: [],
     difficulties: [],
@@ -22,6 +24,27 @@ const FilterPanel = ({ onFilterChange, opportunityType = 'all' }) => {
   });
 
   const filterOptions = {
+    domains: [
+      { value: 'Web Development', label: '🌐 Web Development', count: 15 },
+      { value: 'Mobile Development', label: '📱 Mobile Development', count: 8 },
+      { value: 'AI/ML', label: '🤖 AI/ML', count: 12 },
+      { value: 'Data Science', label: '📊 Data Science', count: 10 },
+      { value: 'Cybersecurity', label: '🔒 Cybersecurity', count: 6 },
+      { value: 'Cloud Computing', label: '☁️ Cloud Computing', count: 7 },
+      { value: 'DevOps', label: '⚙️ DevOps', count: 5 },
+      { value: 'Blockchain', label: '🔗 Blockchain', count: 4 },
+      { value: 'IoT', label: '📡 IoT', count: 5 },
+      { value: 'Game Development', label: '🎮 Game Development', count: 3 },
+      { value: 'AR/VR', label: '🥽 AR/VR', count: 2 },
+      { value: 'Electronics', label: '⚡ Electronics', count: 8 },
+      { value: 'Mechanical', label: '⚙️ Mechanical', count: 6 },
+      { value: 'Civil', label: '🏗️ Civil', count: 4 },
+      { value: 'Electrical', label: '💡 Electrical', count: 5 },
+      { value: 'Management', label: '📈 Management', count: 7 },
+      { value: 'Finance', label: '💰 Finance', count: 6 },
+      { value: 'Marketing', label: '📣 Marketing', count: 5 },
+      { value: 'Design', label: '🎨 Design', count: 8 }
+    ],
     locations: [
       { value: 'Mumbai', label: '🏙️ Mumbai', count: 8 },
       { value: 'Bangalore', label: '🌆 Bangalore', count: 12 },
@@ -71,6 +94,7 @@ const FilterPanel = ({ onFilterChange, opportunityType = 'all' }) => {
 
   const clearAllFilters = () => {
     const emptyFilters = {
+      domains: [],
       locations: [],
       deadlines: [],
       difficulties: [],
@@ -133,6 +157,44 @@ const FilterPanel = ({ onFilterChange, opportunityType = 'all' }) => {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
+            {/* Domain Filter */}
+            <div className="filter-section">
+              <button 
+                className="filter-section-header"
+                onClick={() => toggleSection('domain')}
+              >
+                <span>🎯 Engineering Domain</span>
+                {expandedSections.domain ? 
+                  <FiChevronUp size={18} /> : 
+                  <FiChevronDown size={18} />
+                }
+              </button>
+              
+              <AnimatePresence>
+                {expandedSections.domain && (
+                  <motion.div
+                    className="filter-options"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                  >
+                    {filterOptions.domains.map(option => (
+                      <label key={option.value} className="filter-option">
+                        <input
+                          type="checkbox"
+                          checked={filters.domains.includes(option.value)}
+                          onChange={() => handleFilterChange('domains', option.value)}
+                        />
+                        <span className="checkbox-custom"></span>
+                        <span className="option-label">{option.label}</span>
+                        <span className="option-count">({option.count})</span>
+                      </label>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Location Filter */}
             <div className="filter-section">
               <button 

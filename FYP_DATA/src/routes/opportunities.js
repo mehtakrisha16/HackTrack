@@ -8,6 +8,8 @@ router.get('/opportunities', async (req, res) => {
     const {
       type,           // internship, job, hackathon, event
       category,       // software, data-science, product, etc.
+      domain,         // NEW: Computer Science, Web Development, AI/ML, Electronics, etc.
+      domains,        // NEW: Multiple domains (comma-separated)
       company,        // specific company filter
       location,       // location filter
       skills,         // comma-separated skills
@@ -24,6 +26,16 @@ router.get('/opportunities', async (req, res) => {
 
     if (type) filter.type = type;
     if (category) filter.category = category;
+    
+    // NEW: Domain filtering
+    if (domain) {
+      filter.domain = domain;
+    }
+    if (domains) {
+      const domainArray = domains.split(',').map(d => d.trim());
+      filter.domain = { $in: domainArray };
+    }
+    
     if (company) filter.company = new RegExp(company, 'i');
     if (location) filter.location = new RegExp(location, 'i');
     if (remote !== undefined) filter.remote = remote === 'true';
@@ -86,6 +98,8 @@ router.get('/opportunities', async (req, res) => {
         filters: {
           type,
           category,
+          domain,
+          domains,
           company,
           location,
           skills,
@@ -100,6 +114,51 @@ router.get('/opportunities', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch opportunities',
+      error: error.message
+    });
+  }
+});
+
+// NEW: Get all available domains with counts
+router.get('/domains', async (req, res) => {
+  try {
+    const domainStats = await Opportunity.aggregate([
+      { $match: { isActive: true } },
+      { $group: { 
+          _id: '$domain', 
+          count: { $sum: 1 },
+          internships: { $sum: { $cond: [{ $eq: ['$type', 'internship'] }, 1, 0] } },
+          jobs: { $sum: { $cond: [{ $eq: ['$type', 'job'] }, 1, 0] } },
+          hackathons: { $sum: { $cond: [{ $eq: ['$type', 'hackathon'] }, 1, 0] } },
+          events: { $sum: { $cond: [{ $eq: ['$type', 'event'] }, 1, 0] } }
+      }},
+      { $sort: { count: -1 } }
+    ]);
+
+    const domains = domainStats.map(stat => ({
+      name: stat._id,
+      count: stat.count,
+      breakdown: {
+        internships: stat.internships,
+        jobs: stat.jobs,
+        hackathons: stat.hackathons,
+        events: stat.events
+      }
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        domains,
+        total: domains.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching domains:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch domains',
       error: error.message
     });
   }

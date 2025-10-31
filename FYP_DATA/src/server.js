@@ -25,8 +25,30 @@ const opportunityRoutes = require('./routes/opportunities');
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 
-// Import scraper (will auto-start with cron jobs)
-require('./services/opportunityScraper');
+// Import new comprehensive domain scraper
+const DomainScraper = require('./services/domainScraper');
+const cron = require('node-cron');
+
+// Initialize domain scraper
+const domainScraper = new DomainScraper();
+
+// Auto-run scraper on server start (after 30 seconds delay)
+setTimeout(() => {
+  console.log('🚀 Starting initial domain-wise scraping...');
+  domainScraper.scrapeAllDomains().catch(err => console.error('Scraping error:', err));
+}, 30000);
+
+// Schedule scraping every 6 hours
+cron.schedule('0 */6 * * *', () => {
+  console.log('⏰ Running scheduled domain-wise scraping...');
+  domainScraper.scrapeAllDomains().catch(err => console.error('Scraping error:', err));
+});
+
+// Clean old opportunities daily at 2 AM
+cron.schedule('0 2 * * *', () => {
+  console.log('🗑️ Cleaning old opportunities...');
+  domainScraper.cleanOldOpportunities(60).catch(err => console.error('Cleanup error:', err));
+});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
