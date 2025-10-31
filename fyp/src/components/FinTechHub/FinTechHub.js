@@ -273,7 +273,7 @@ const FinTechHub = () => {
               <div className="details-row">
                 <div className="detail">
                   <FiMapPin size={16} />
-                  <span>{opportunity.location}</span>
+                  <span>{typeof opportunity.location === 'string' ? opportunity.location : (opportunity.location?.city || 'Remote')}</span>
                 </div>
                 <div className="detail">
                   <FiDollarSign size={16} />
@@ -377,7 +377,7 @@ const FinTechHub = () => {
                       <FiMapPin />
                       <div>
                         <span className="label">Location</span>
-                        <span className="value">{selectedOpportunity.location}</span>
+                        <span className="value">{typeof selectedOpportunity.location === 'string' ? selectedOpportunity.location : (selectedOpportunity.location?.city || 'Remote')}</span>
                       </div>
                     </div>
                     <div className="detail">

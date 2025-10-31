@@ -52,8 +52,9 @@ class NotificationService {
   // Event reminder notifications
   showEventReminder(event) {
     const title = `📅 Event Reminder: ${event.title}`;
+    const location = typeof event.location === 'string' ? event.location : (event.location?.city || 'TBD');
     const options = {
-      body: `Starts in 1 hour at ${event.location}. Don't miss out!`,
+      body: `Starts in 1 hour at ${location}. Don't miss out!`,
       icon: '/images/event-icon.png',
       tag: `event-${event.id}`,
       actions: [

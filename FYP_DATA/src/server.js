@@ -25,6 +25,9 @@ const opportunityRoutes = require('./routes/opportunities');
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 
+// Import scraper (will auto-start with cron jobs)
+require('./services/opportunityScraper');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

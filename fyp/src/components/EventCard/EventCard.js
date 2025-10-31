@@ -276,36 +276,61 @@ const EventCard = ({ event, variant = 'default' }) => {
           )}
         </div>
 
-        {/* Countdown Timer */}
-        <CountdownTimer deadline={event.deadline} />
-
-        {isExpired && (
-          <div className="deadline-info expired">
-            <span>Application closed</span>
+        {/* Countdown Timer with Days Remaining */}
+        {!isExpired && (
+          <div className="deadline-countdown">
+            <div className="countdown-header">
+              <FiClock size={18} />
+              <span className="countdown-label">Time Remaining</span>
+            </div>
+            <div className="countdown-display">
+              <div className="countdown-item">
+                <span className="countdown-value">{daysLeft}</span>
+                <span className="countdown-unit">Days</span>
+              </div>
+              <CountdownTimer deadline={event.deadline} compact={true} />
+            </div>
+            {isUrgent && (
+              <div className="urgency-message">
+                <span className="pulse-dot"></span>
+                <span>Hurry! Deadline approaching soon</span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Action Buttons */}
+        {isExpired && (
+          <div className="deadline-info expired">
+            <FiClock size={16} />
+            <span>Applications Closed</span>
+          </div>
+        )}
+
+        {/* Action Buttons - Enhanced */}
         <div className="event-actions">
           {!isExpired && (
-            <Button 
+            <button 
+              className="action-btn apply-btn"
               onClick={handleApply}
               disabled={!user}
-              fullWidth
-              icon={<FiExternalLink size={16} />}
             >
-              {event.applicationLink || event.registrationLink || event.applyLink ? 
-                'Apply Now' : 'Register Interest'}
-            </Button>
+              <span className="btn-content">
+                <FiExternalLink size={18} />
+                <span className="btn-text">Apply Now</span>
+              </span>
+              {isUrgent && <span className="btn-badge">Urgent</span>}
+            </button>
           )}
           
-          <Button 
-            variant="outline" 
-            icon={<FiExternalLink size={16} />}
+          <button 
+            className="action-btn details-btn"
             onClick={() => window.open(event.url || event.sourceUrl || event.applicationLink, '_blank')}
           >
-            View Details
-          </Button>
+            <span className="btn-content">
+              <FiExternalLink size={18} />
+              <span className="btn-text">View Details</span>
+            </span>
+          </button>
         </div>
 
         {/* Skills/Technologies */}

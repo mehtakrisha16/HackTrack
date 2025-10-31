@@ -225,7 +225,7 @@ const CareerTimeline = ({ user = {} }) => {
                 {event.location && (
                   <div className="event-location">
                     <FiMapPin size={14} />
-                    <span>{event.location}</span>
+                    <span>{typeof event.location === 'string' ? event.location : (event.location?.city || 'TBD')}</span>
                   </div>
                 )}
 

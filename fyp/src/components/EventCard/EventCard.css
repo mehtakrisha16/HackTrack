@@ -431,10 +431,216 @@
   color: var(--error-color);
 }
 
-.event-actions {
+/* Deadline Countdown - Enhanced */
+.deadline-countdown {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border: 2px solid #fbbf24;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2);
+}
+
+.countdown-header {
   display: flex;
+  align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
+  color: #92400e;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.countdown-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  justify-content: center;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+}
+
+.countdown-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.countdown-unit {
+  font-size: 0.75rem;
+  color: #78350f;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: var(--spacing-xs);
+  letter-spacing: 1px;
+}
+
+.urgency-message {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #dc2626;
+  border-radius: 50%;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Action Buttons - Ultra Modern */
+.event-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.action-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
+}
+
+.btn-text {
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+/* Apply Now Button - Gradient */
+.apply-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.apply-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.apply-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.apply-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.apply-btn .btn-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #dc2626;
+  color: white;
+  font-size: 0.625rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* View Details Button - Outline */
+.details-btn {
+  background: white;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.details-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  color: #111827;
+}
+
+.details-btn:active {
+  transform: translateY(-1px) scale(0.98);
 }
 
 .event-technologies {
@@ -473,9 +679,31 @@
 
   .event-actions {
     flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+
+  .countdown-display {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .countdown-item {
+    min-width: 100%;
+  }
+
+  .countdown-value {
+    font-size: 2rem;
   }
 
   .event-title {
     font-size: 1.125rem;
+  }
+
+  .deadline-countdown {
+    padding: var(--spacing-md);
   }
 }

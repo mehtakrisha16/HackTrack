@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiClock } from 'react-icons/fi';
 import './CountdownTimer.css';
 
-const CountdownTimer = ({ deadline }) => {
+const CountdownTimer = ({ deadline, compact = false }) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   function calculateTimeLeft() {
@@ -71,6 +71,22 @@ const CountdownTimer = ({ deadline }) => {
 
     return `${timeLeft.days} days left`;
   };
+
+  if (compact) {
+    return (
+      <div className="countdown-compact">
+        <div className="countdown-item">
+          <span className="countdown-value">{timeLeft.hours || 0}</span>
+          <span className="countdown-unit">Hrs</span>
+        </div>
+        <span className="countdown-separator">:</span>
+        <div className="countdown-item">
+          <span className="countdown-value">{timeLeft.minutes || 0}</span>
+          <span className="countdown-unit">Mins</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`countdown-timer ${getUrgencyClass()}`}>

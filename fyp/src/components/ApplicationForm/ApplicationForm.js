@@ -183,7 +183,7 @@ const ApplicationForm = ({ event, isOpen, onClose, onSuccess }) => {
               <p>{event.organizer || event.company}</p>
               <div className="event-details">
                 <span className="event-type">{event.type}</span>
-                <span className="event-location">{event.location}</span>
+                <span className="event-location">{typeof event.location === 'string' ? event.location : (event.location?.city || 'Remote')}</span>
                 <span className="event-deadline">
                   Deadline: {new Date(event.deadline).toLocaleDateString()}
                 </span>
