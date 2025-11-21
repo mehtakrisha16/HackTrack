@@ -22,7 +22,18 @@ const sendSMS = async (phone, otp) => {
 // @access  Public
 const sendOTP = async (req, res) => {
   try {
-    const { phone } = req.body;
+    // Support encrypted payloads
+    let body = req.body;
+    if (body && body.encrypted && body.payload) {
+      const { decryptPayload } = require('../utils/encryption');
+      const passphrase = process.env.ENCRYPTION_PASSPHRASE || process.env.REACT_APP_ENCRYPTION_PASSPHRASE;
+      if (!passphrase) return res.status(400).json({ success: false, message: 'Server encryption not configured' });
+      const decrypted = decryptPayload(body.payload, passphrase);
+      if (!decrypted) return res.status(400).json({ success: false, message: 'Failed to decrypt payload' });
+      try { body = JSON.parse(decrypted); } catch (err) { return res.status(400).json({ success: false, message: 'Invalid decrypted payload' }); }
+    }
+
+    const { phone } = body;
 
     if (!phone) {
       return res.status(400).json({
@@ -82,7 +93,18 @@ const sendOTP = async (req, res) => {
 // @access  Public
 const verifyOTP = async (req, res) => {
   try {
-    const { phone, otp, name, email } = req.body;
+    // Support encrypted payloads
+    let body = req.body;
+    if (body && body.encrypted && body.payload) {
+      const { decryptPayload } = require('../utils/encryption');
+      const passphrase = process.env.ENCRYPTION_PASSPHRASE || process.env.REACT_APP_ENCRYPTION_PASSPHRASE;
+      if (!passphrase) return res.status(400).json({ success: false, message: 'Server encryption not configured' });
+      const decrypted = decryptPayload(body.payload, passphrase);
+      if (!decrypted) return res.status(400).json({ success: false, message: 'Failed to decrypt payload' });
+      try { body = JSON.parse(decrypted); } catch (err) { return res.status(400).json({ success: false, message: 'Invalid decrypted payload' }); }
+    }
+
+    const { phone, otp, name, email } = body;
 
     if (!phone || !otp) {
       return res.status(400).json({

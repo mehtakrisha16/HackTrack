@@ -11,8 +11,30 @@ class ApiError extends Error {
   }
 }
 
+const joinUrl = (base, path) => {
+  if (!base) return path;
+  const b = String(base).replace(/\/+$/g, '');
+  let p = String(path).replace(/^\/+/, '');
+
+  // Prevent duplication when base ends with the same first segment of path.
+  // e.g. base = 'http://localhost:5000/api' and path = '/api/auth/register'
+  // would otherwise become '.../api/api/auth/register'
+  try {
+    const baseLast = b.split('/').filter(Boolean).pop();
+    const pathFirst = p.split('/').filter(Boolean)[0];
+    if (baseLast && pathFirst && baseLast === pathFirst) {
+      // remove the duplicated segment from path
+      p = p.split('/').slice(1).join('/');
+    }
+  } catch (e) {
+    // if anything unexpected occurs, fall back to normal join
+  }
+
+  return `${b}/${p}`;
+};
+
 const apiCall = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = joinUrl(API_BASE_URL, endpoint);
   
   const defaultOptions = {
     credentials: 'include', // Include cookies for session persistence (like LinkedIn)
@@ -67,14 +89,16 @@ const apiCall = async (endpoint, options = {}) => {
 
 // Auth API functions
 export const authAPI = {
-  register: (userData) => apiCall('/api/auth/register', {
+  register: (userData, options = {}) => apiCall('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData),
+    ...options
   }),
 
-  login: (credentials) => apiCall('/api/auth/login', {
+  login: (credentials, options = {}) => apiCall('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
+    ...options
   }),
 
   getProfile: (token) => apiCall('/api/auth/me', {

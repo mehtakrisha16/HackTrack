@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import { toast } from '../utils/toastFilter';
 import { authUtils } from '../utils/auth';
 
 // Initial state
@@ -141,12 +141,13 @@ export const AppProvider = ({ children }) => {
           if (user) {
             dispatch({ type: actionTypes.SET_USER, payload: user });
           } else {
-            // Clear invalid tokens
+            // Clear invalid tokens silently
             authUtils.logout();
           }
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        // Silently handle auth initialization errors - don't show toasts on page load
+        console.log('Auth initialization: No valid session found');
         // Clear invalid tokens on any auth error
         authUtils.logout();
       } finally {

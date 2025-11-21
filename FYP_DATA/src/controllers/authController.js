@@ -48,6 +48,24 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     });
 };
 
+const { decryptPayload } = require('../utils/encryption');
+
+// Helper to extract body (supports encrypted payloads)
+const extractBody = (req) => {
+  if (req.body && req.body.encrypted && req.body.payload) {
+    const passphrase = process.env.ENCRYPTION_PASSPHRASE || process.env.REACT_APP_ENCRYPTION_PASSPHRASE;
+    if (!passphrase) return { error: 'Server does not have encryption passphrase configured' };
+    const decrypted = decryptPayload(req.body.payload, passphrase);
+    if (!decrypted) return { error: 'Failed to decrypt payload' };
+    try {
+      return JSON.parse(decrypted);
+    } catch (err) {
+      return { error: 'Decrypted payload is not valid JSON' };
+    }
+  }
+  return req.body;
+};
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
@@ -63,6 +81,11 @@ const register = async (req, res) => {
       });
     }
 
+    const extracted = extractBody(req);
+    if (extracted && extracted.error) {
+      return res.status(400).json({ success: false, message: extracted.error });
+    }
+
     const {
       name,
       email,
@@ -72,7 +95,7 @@ const register = async (req, res) => {
       education,
       skills,
       interests
-    } = req.body;
+    } = extracted;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -139,7 +162,11 @@ const login = async (req, res) => {
       });
     }
 
-    const { email, password } = req.body;
+    const extractedLogin = extractBody(req);
+    if (extractedLogin && extractedLogin.error) {
+      return res.status(400).json({ success: false, message: extractedLogin.error });
+    }
+    const { email, password } = extractedLogin;
     console.log('Login attempt for email:', email);
 
     // Find user by email
@@ -477,3 +504,46 @@ module.exports = {
   forgotPassword,
   resetPassword
 };
+
+// -----------------------
+// Debug helper - create a real user in DB (requires DEBUG_CREATE_TOKEN header)
+// -----------------------
+const createDebugUser = async (req, res) => {
+  try {
+    const tokenHeader = req.headers['x-debug-token'] || req.headers['x-debug-create-token'];
+    const expected = process.env.DEBUG_CREATE_TOKEN || process.env.ENCRYPTION_PASSPHRASE;
+    if (!tokenHeader || !expected || tokenHeader !== expected) {
+      return res.status(403).json({ success: false, message: 'Forbidden: invalid debug token' });
+    }
+
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'name, email and password are required' });
+    }
+
+    // Prevent accidental duplicates
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'User already exists' });
+    }
+
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password,
+      phone,
+      profileCompleted: true,
+      isEmailVerified: true,
+      isPhoneVerified: !!phone
+    });
+
+    // Return token+user same as normal registration
+    sendTokenResponse(user, 201, res, 'Debug user created');
+
+  } catch (err) {
+    console.error('createDebugUser error:', err);
+    res.status(500).json({ success: false, message: 'Server error creating debug user', error: process.env.NODE_ENV === 'development' ? err.message : undefined });
+  }
+};
+
+module.exports.createDebugUser = createDebugUser;

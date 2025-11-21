@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiMapPin, FiUsers, FiDollarSign, FiClock, FiBookmark, FiExternalLink } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import { AppContext } from '../../context/AppContext';
 import Button from '../Button/Button';
 import CountdownTimer from '../CountdownTimer/CountdownTimer';
@@ -8,7 +10,9 @@ import './EventCard.css';
 
 const EventCard = ({ event, variant = 'default' }) => {
   const { saveEvent, unsaveEvent, isEventSaved, addApplication, user } = useContext(AppContext);
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   
   const isSaved = isEventSaved(event.id);
 
@@ -29,36 +33,70 @@ const EventCard = ({ event, variant = 'default' }) => {
   const handleApply = (e) => {
     e.stopPropagation();
     
-    // Priority order: applicationLink > registrationLink > applyLink > website
-    const link = event.applicationLink || event.registrationLink || event.applyLink || event.website || event.url;
+    // Priority order for registration/application links
+    const link = event.applicationLink || 
+                 event.registrationLink || 
+                 event.applyLink || 
+                 event.registrationUrl ||
+                 event.apply_url ||
+                 event.website || 
+                 event.url ||
+                 event.sourceUrl;
     
     if (link) {
-      window.open(link, '_blank');
+      // Open the registration/application page in a new tab
+      window.open(link, '_blank', 'noopener,noreferrer');
       
-      // Also track internally if user is logged in
-      if (user) {
+      // Show success toast
+      toast.success(`Opening application for ${event.title}`, {
+        duration: 3000,
+        icon: '🚀',
+        style: {
+          borderRadius: '12px',
+          background: '#10b981',
+          color: '#fff',
+          padding: '16px',
+        }
+      });
+      
+      // Track application if user is logged in (optional)
+      if (user && addApplication) {
         addApplication({
-          eventId: event.id,
+          eventId: event.id || event._id,
           eventTitle: event.title,
           eventType: event.type,
           companyName: event.company || event.organizer || event.organization
         });
       }
     } else {
-      // Fallback: just track if user is logged in
+      // No external link available
       if (!user) {
-        // Redirect to login or show auth modal
-        alert('Please login to apply');
-        return;
+        // If user isn't logged in, route them to signup so they can create an account and express interest
+        toast('Please create an account to apply for this opportunity', {
+          icon: 'ℹ️',
+          duration: 3000,
+          style: {
+            borderRadius: '12px',
+            background: '#2563eb',
+            color: '#fff',
+            padding: '12px'
+          }
+        });
+        navigate('/signup');
+      } else {
+        // Logged in but no external registration link - show helpful message
+        toast.error('Registration link not available. Please check back later or visit the company website.', {
+          duration: 4000,
+          icon: '⚠️',
+          style: {
+            borderRadius: '12px',
+            background: '#ef4444',
+            color: '#fff',
+            padding: '16px',
+          }
+        });
       }
-      
-      addApplication({
-        eventId: event.id,
-        eventTitle: event.title,
-        eventType: event.type,
-        companyName: event.company || event.organizer || event.organization
-      });
-      alert('Application recorded! Check your dashboard for tracking.');
+      console.warn('No application link found for event:', event.title);
     }
   };
 
@@ -325,7 +363,7 @@ const EventCard = ({ event, variant = 'default' }) => {
             <button 
               className="action-btn apply-btn"
               onClick={handleApply}
-              disabled={!user}
+              title="Apply to this opportunity"
             >
               <span className="btn-content">
                 <FiExternalLink size={18} />
@@ -337,7 +375,11 @@ const EventCard = ({ event, variant = 'default' }) => {
           
           <button 
             className="action-btn details-btn"
-            onClick={() => window.open(event.url || event.sourceUrl || event.applicationLink, '_blank')}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowModal(true);
+            }}
+            title="View opportunity details"
           >
             <span className="btn-content">
               <FiExternalLink size={18} />
@@ -358,6 +400,212 @@ const EventCard = ({ event, variant = 'default' }) => {
           </div>
         )}
       </div>
+
+      {/* Details Modal */}
+      {showModal && (
+        <motion.div 
+          className="event-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowModal(false)}
+        >
+          <motion.div 
+            className="event-modal-content"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="modal-header">
+              <div className="modal-title-section">
+                <h2>{event.title}</h2>
+                <div className="modal-badges">
+                  <span className={`modal-badge type-${event.type?.toLowerCase()}`}>
+                    {event.type?.toUpperCase()}
+                  </span>
+                  {event.difficulty && (
+                    <span className={`modal-badge difficulty-${event.difficulty.toLowerCase()}`}>
+                      {event.difficulty}
+                    </span>
+                  )}
+                  {isUrgent && <span className="modal-badge urgent-badge">URGENT</span>}
+                </div>
+              </div>
+              <button 
+                className="modal-close-btn"
+                onClick={() => setShowModal(false)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="modal-body">
+              {/* Company/Organizer Info */}
+              {(event.company || event.organizer) && (
+                <div className="modal-section">
+                  <h3 className="modal-section-title">
+                    <FiUsers size={18} />
+                    {event.type === 'internship' || event.type === 'job' ? 'Company' : 'Organizer'}
+                  </h3>
+                  <p className="modal-section-content">{event.company || event.organizer}</p>
+                </div>
+              )}
+
+              {/* Description */}
+              <div className="modal-section">
+                <h3 className="modal-section-title">About</h3>
+                <p className="modal-section-content">{event.description}</p>
+              </div>
+
+              {/* Location & Date Info */}
+              <div className="modal-info-grid">
+                <div className="modal-info-item">
+                  <div className="modal-info-icon">
+                    <FiMapPin size={20} />
+                  </div>
+                  <div className="modal-info-content">
+                    <span className="modal-info-label">Location</span>
+                    <span className="modal-info-value">
+                      {typeof event.location === 'string' 
+                        ? event.location 
+                        : `${event.location?.city || 'Remote'}, ${event.location?.mode || 'In-person'}`}
+                    </span>
+                  </div>
+                </div>
+
+                {event.startDate && (
+                  <div className="modal-info-item">
+                    <div className="modal-info-icon">
+                      <FiCalendar size={20} />
+                    </div>
+                    <div className="modal-info-content">
+                      <span className="modal-info-label">
+                        {event.endDate ? 'Duration' : 'Start Date'}
+                      </span>
+                      <span className="modal-info-value">
+                        {event.endDate 
+                          ? `${formatDate(event.startDate)} - ${formatDate(event.endDate)}`
+                          : formatDate(event.startDate)
+                        }
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {(event.deadline || event.registrationDeadline) && (
+                  <div className="modal-info-item">
+                    <div className="modal-info-icon">
+                      <FiClock size={20} />
+                    </div>
+                    <div className="modal-info-content">
+                      <span className="modal-info-label">Deadline</span>
+                      <span className="modal-info-value">
+                        {formatDate(event.deadline || event.registrationDeadline)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {(event.prize || event.salary || event.stipend) && (
+                  <div className="modal-info-item">
+                    <div className="modal-info-icon">
+                      <FiDollarSign size={20} />
+                    </div>
+                    <div className="modal-info-content">
+                      <span className="modal-info-label">
+                        {event.prize ? 'Prize' : 'Compensation'}
+                      </span>
+                      <span className="modal-info-value">
+                        {formatCurrency(event.prize || event.salary || event.stipend)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Technologies/Skills */}
+              {event.technologies && event.technologies.length > 0 && (
+                <div className="modal-section">
+                  <h3 className="modal-section-title">Technologies & Skills</h3>
+                  <div className="modal-tech-tags">
+                    {event.technologies.map((tech, index) => (
+                      <span key={index} className="modal-tech-tag">{tech}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Requirements */}
+              {event.requirements && event.requirements.length > 0 && (
+                <div className="modal-section">
+                  <h3 className="modal-section-title">Requirements</h3>
+                  <ul className="modal-requirements-list">
+                    {event.requirements.map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Benefits */}
+              {event.benefits && event.benefits.length > 0 && (
+                <div className="modal-section">
+                  <h3 className="modal-section-title">Benefits</h3>
+                  <ul className="modal-benefits-list">
+                    {event.benefits.map((benefit, index) => (
+                      <li key={index}>{benefit}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Additional Details */}
+              {(event.experience || event.duration || event.registrationFee) && (
+                <div className="modal-section">
+                  <h3 className="modal-section-title">Additional Information</h3>
+                  <div className="modal-additional-info">
+                    {event.experience && (
+                      <p><strong>Experience Level:</strong> {event.experience}</p>
+                    )}
+                    {event.duration && (
+                      <p><strong>Duration:</strong> {event.duration}</p>
+                    )}
+                    {event.registrationFee !== undefined && (
+                      <p><strong>Registration Fee:</strong> {event.registrationFee === 0 ? 'Free' : formatCurrency(event.registrationFee.toString())}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer">
+              <button 
+                className="modal-btn modal-btn-secondary"
+                onClick={() => setShowModal(false)}
+              >
+                Close
+              </button>
+              {!isExpired && (
+                <button 
+                  className="modal-btn modal-btn-primary"
+                  onClick={(e) => {
+                    handleApply(e);
+                    setShowModal(false);
+                  }}
+                >
+                  <FiExternalLink size={18} />
+                  Apply Now
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

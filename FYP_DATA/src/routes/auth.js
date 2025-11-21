@@ -10,6 +10,7 @@ const {
   changePassword,
   forgotPassword,
   resetPassword
+  ,createDebugUser
 } = require('../controllers/authController');
 const {
   sendOTP,
@@ -215,5 +216,8 @@ router.post('/resend-otp', strictAuthLimit, [
     .matches(/^[6-9]\d{9}$/)
     .withMessage('Please enter a valid 10-digit Indian mobile number')
 ], resendOTP);
+
+// Debug: create a real user in DB for demo/unblock (requires DEBUG_CREATE_TOKEN header)
+router.post('/debug-create-user', strictAuthLimit, createDebugUser);
 
 module.exports = router;

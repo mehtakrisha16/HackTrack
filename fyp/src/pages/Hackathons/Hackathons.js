@@ -78,12 +78,17 @@ const Hackathons = () => {
       technologies: hackathon.skills || [],
       category: hackathon.category || 'general',
       mode: hackathon.remote ? 'Online' : 'Offline',
-      registrationLink: hackathon.applicationLink,
+      // Multiple link fields for Apply Now button
+      applicationLink: hackathon.applicationLink || hackathon.registrationLink,
+      registrationLink: hackathon.registrationLink || hackathon.applicationLink,
+      applyLink: hackathon.applyLink,
+      url: hackathon.sourceUrl || hackathon.applicationLink,
+      sourceUrl: hackathon.sourceUrl,
+      website: hackathon.website,
       maxTeamSize: 4,
       minTeamSize: 1,
       participantCount: Math.floor(Math.random() * 1000) + 100,
       isLive: true,
-      sourceUrl: hackathon.sourceUrl,
       themes: hackathon.skills || ['Innovation', 'Technology']
     }));
 

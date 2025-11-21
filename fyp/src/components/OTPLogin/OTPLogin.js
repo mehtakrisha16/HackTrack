@@ -4,6 +4,7 @@ import { FiPhone, FiKey, FiArrowLeft, FiClock, FiCheckCircle } from 'react-icons
 import { AppContext } from '../../context/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './OTPLogin.css';
+import { encryptData } from '../../utils/encryption';
 
 const OTPLogin = ({ onBack }) => {
   const { setUser, setLoading } = useContext(AppContext);
@@ -60,12 +61,16 @@ const OTPLogin = ({ onBack }) => {
     setIsLoading(true);
 
     try {
+      // Optionally encrypt phone payload if passphrase provided
+      const encrypted = await encryptData(phone);
+      const body = encrypted.encrypted ? { payload: encrypted.payload, encrypted: true } : { phone };
+
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -102,16 +107,17 @@ const OTPLogin = ({ onBack }) => {
     setIsLoading(true);
 
     try {
+      // Optionally encrypt OTP payload
+      const payloadObj = { phone, otp, name: isNewUser ? name : undefined };
+      const encrypted = await encryptData(JSON.stringify(payloadObj));
+      const body = encrypted.encrypted ? { payload: encrypted.payload, encrypted: true } : payloadObj;
+
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          phone, 
-          otp,
-          name: isNewUser ? name : undefined
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -154,12 +160,15 @@ const OTPLogin = ({ onBack }) => {
     setIsLoading(true);
 
     try {
+      const encrypted = await encryptData(phone);
+      const body = encrypted.encrypted ? { payload: encrypted.payload, encrypted: true } : { phone };
+
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/resend-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();

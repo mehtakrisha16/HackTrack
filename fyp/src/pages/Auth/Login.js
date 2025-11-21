@@ -5,7 +5,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiPhone } from 'react-icons/fi';
 import { AppContext } from '../../context/AppContext';
 import Button from '../../components/Button/Button';
 import OTPLogin from '../../components/OTPLogin/OTPLogin';
-import { toast } from 'react-hot-toast';
+import { toast } from '../../utils/toastFilter';
 import './Auth.css';
 
 const Login = () => {
@@ -26,19 +26,60 @@ const Login = () => {
     });
   };
 
+  // Debug: DOM listeners to ensure submit/click events are observable
+  React.useEffect(() => {
+    const f = document.getElementById('login-form');
+    const onSubmit = (e) => console.log('DOM submit event fired for login-form', e);
+    const onClick = (e) => console.log('DOM click on login (target):', e.target);
+    if (f) {
+      f.addEventListener('submit', onSubmit);
+      f.addEventListener('click', onClick);
+    }
+    return () => {
+      if (f) {
+        f.removeEventListener('submit', onSubmit);
+        f.removeEventListener('click', onClick);
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🔵 Login button clicked!');
+    console.log('📧 Email:', formData.email);
+    console.log('🔐 Password:', formData.password ? '***' : 'EMPTY');
+    if (isLoading) return;
+
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      toast.error('Please enter email and password');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      console.log('🚀 Calling login API...');
+
+      // Timeout wrapper
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
       const userData = await login({
         email: formData.email,
         password: formData.password
-      });
+      }, { signal: controller.signal });
 
-      navigate('/dashboard');
+      clearTimeout(timeout);
+
+      console.log('✅ Login successful!', userData);
+
+      // If profile incomplete, redirect to complete-profile
+      const needsProfile = !userData.phone || !userData.location;
+      navigate(needsProfile ? '/complete-profile' : '/dashboard');
+
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       
       if (error.status === 400 && error.data?.errors) {
         // Handle validation errors
@@ -105,7 +146,7 @@ const Login = () => {
 
           {/* Conditional Login Forms */}
           {loginMethod === 'email' ? (
-            <form className="auth-form" onSubmit={handleSubmit}>
+            <form id="login-form" className="auth-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
                 <div className="input-wrapper">
@@ -117,7 +158,7 @@ const Login = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
-                    required
+                    /* required removed so JS submit handler runs during demo */
                   />
                 </div>
               </div>
@@ -133,7 +174,7 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    required
+                    /* required removed so JS submit handler runs during demo */
                   />
                   <button
                     type="button"
@@ -161,9 +202,20 @@ const Login = () => {
                 loading={isLoading}
                 fullWidth 
                 size="large"
+                onClick={() => {
+                  // Ensure form submit fires even if something intercepts native submit
+                  const f = document.getElementById('login-form');
+                  if (f && typeof f.requestSubmit === 'function') f.requestSubmit();
+                }}
               >
                 Sign In
               </Button>
+              {/* Native fallback button for edge cases where the styled Button is blocked by CSS/overlays */}
+              <button
+                type="submit"
+                style={{ display: 'none' }}
+                aria-hidden="true"
+              />
             </form>
           ) : (
             <OTPLogin onBack={() => setLoginMethod('email')} />

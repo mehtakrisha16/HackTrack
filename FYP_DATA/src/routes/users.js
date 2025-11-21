@@ -21,19 +21,6 @@ router.post('/profile-photo', protect, deleteOldPhoto, upload.single('profilePho
     // Construct the photo URL
     const photoUrl = `/uploads/profiles/${req.file.filename}`;
 
-    // Handle demo users
-    if (req.user.name && req.user.name.includes('Demo User')) {
-      return res.status(200).json({
-        success: true,
-        message: 'Profile photo uploaded successfully',
-        profilePhoto: photoUrl,
-        user: {
-          ...req.user,
-          profilePhoto: photoUrl
-        }
-      });
-    }
-
     // Update user in database
     try {
       const user = await User.findByIdAndUpdate(
@@ -58,15 +45,10 @@ router.post('/profile-photo', protect, deleteOldPhoto, upload.single('profilePho
 
     } catch (dbError) {
       console.error('Database error in profile photo upload:', dbError);
-      // Fallback to demo response
-      return res.status(200).json({
-        success: true,
-        message: 'Profile photo uploaded successfully',
-        profilePhoto: photoUrl,
-        user: {
-          ...req.user,
-          profilePhoto: photoUrl
-        }
+      return res.status(500).json({
+        success: false,
+        message: 'Database error uploading profile photo. Please check the database connection.',
+        error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
       });
     }
 
@@ -84,18 +66,6 @@ router.post('/profile-photo', protect, deleteOldPhoto, upload.single('profilePho
 // @access  Private
 router.delete('/profile-photo', protect, async (req, res) => {
   try {
-    // Handle demo users
-    if (req.user.name && req.user.name.includes('Demo User')) {
-      return res.status(200).json({
-        success: true,
-        message: 'Profile photo removed successfully',
-        user: {
-          ...req.user,
-          profilePhoto: null
-        }
-      });
-    }
-
     // Get user's current photo
     try {
       const user = await User.findById(req.user.id);
@@ -129,14 +99,10 @@ router.delete('/profile-photo', protect, async (req, res) => {
 
     } catch (dbError) {
       console.error('Database error in profile photo deletion:', dbError);
-      // Fallback to demo response
-      return res.status(200).json({
-        success: true,
-        message: 'Profile photo removed successfully',
-        user: {
-          ...req.user,
-          profilePhoto: null
-        }
+      return res.status(500).json({
+        success: false,
+        message: 'Database error deleting profile photo. Please check the database connection.',
+        error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
       });
     }
 
@@ -168,48 +134,7 @@ router.put('/profile', protect, async (req, res) => {
       projects
     } = req.body;
 
-    // Handle demo users (when database is not available)
-    if (req.user.name && req.user.name.includes('Demo User')) {
-      // Create a complete user profile from the submitted data
-      const updatedUser = {
-        id: req.user.id,
-        name: name || req.user.name,
-        email: email || req.user.email,
-        phone: phone || '',
-        bio: bio || '',
-        profilePicture: req.user.profilePicture,
-        location: location || { city: 'Mumbai', state: 'Maharashtra', country: 'India' },
-        education: education || {},
-        skills: skills || [],
-        interests: interests || [],
-        socialLinks: socialLinks || {},
-        experience: experience || [],
-        projects: projects || [],
-        preferences: {
-          notifications: {
-            email: true,
-            push: true,
-            sms: false
-          },
-          privacy: {
-            profileVisible: true,
-            contactVisible: true,
-            achievementsVisible: true
-          }
-        },
-        isEmailVerified: true,
-        isActive: true,
-        profileCompleted: true
-      };
-
-      return res.status(200).json({
-        success: true,
-        message: 'Profile updated successfully',
-        user: updatedUser
-      });
-    }
-
-    // For real database operations (when available)
+    // For real database operations
     try {
       const user = await User.findById(req.user.id);
       
@@ -247,28 +172,10 @@ router.put('/profile', protect, async (req, res) => {
 
     } catch (dbError) {
       console.error('Database error in profile update:', dbError);
-      // Fallback to demo response
-      const updatedUser = {
-        id: req.user.id,
-        name: name || req.user.name,
-        email: email || req.user.email,
-        phone: phone || '',
-        bio: bio || '',
-        profilePicture: req.user.profilePicture,
-        location: location || { city: 'Mumbai', state: 'Maharashtra', country: 'India' },
-        education: education || {},
-        skills: skills || [],
-        interests: interests || [],
-        socialLinks: socialLinks || {},
-        experience: experience || [],
-        projects: projects || [],
-        profileCompleted: true
-      };
-
-      return res.status(200).json({
-        success: true,
-        message: 'Profile updated successfully',
-        user: updatedUser
+      return res.status(500).json({
+        success: false,
+        message: 'Database error updating profile. Please check the database connection.',
+        error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
       });
     }
 
@@ -285,32 +192,35 @@ router.put('/profile', protect, async (req, res) => {
 // @desc    Get user statistics for dashboard
 // @access  Private
 router.get('/stats', protect, async (req, res) => {
-  try {
-    // Demo stats for when database is not available
-    const demoStats = {
-      eventsAttended: 5,
-      hackathonsParticipated: 3,
-      hackathonsWon: 1,
-      internshipsCompleted: 2,
-      projectsCompleted: 8,
-      connectionsBuilt: 42,
-      totalApplications: 12,
-      acceptedApplications: 7,
-      upcomingEvents: 4
-    };
+    try {
+      const user = await User.findById(req.user.id).lean();
+      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    res.status(200).json({
-      success: true,
-      stats: demoStats
-    });
+      const Application = require('../models/Application');
+      const totalApplications = await Application.countUserApplications(req.user.id);
 
-  } catch (error) {
-    console.error('Get user stats error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error getting user statistics'
-    });
-  }
+      const stats = {
+        eventsAttended: user.stats?.eventsAttended || 0,
+        hackathonsParticipated: user.stats?.hackathonsParticipated || 0,
+        hackathonsWon: user.stats?.hackathonsWon || 0,
+        internshipsCompleted: user.stats?.internshipsCompleted || 0,
+        projectsCompleted: user.stats?.projectsCompleted || 0,
+        connectionsBuilt: user.stats?.connectionsBuilt || 0,
+        totalApplications: totalApplications,
+        acceptedApplications: 0,
+        upcomingEvents: 0
+      };
+
+      res.status(200).json({ success: true, stats });
+
+    } catch (error) {
+      console.error('Get user stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error getting user statistics. Please check the database connection.',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
 });
 
 // @route   GET /api/users/profile/:id

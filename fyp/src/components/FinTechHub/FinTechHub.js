@@ -266,10 +266,6 @@ const FinTechHub = () => {
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <div className="card-header">
-              <div className="company-info">
-                <h3>{opportunity.title}</h3>
-                <p className="company">{opportunity.company}</p>
-              </div>
               <div className="card-badges">
                 {isUrgent(opportunity.deadline) && (
                   <span className="badge urgent">Urgent</span>
@@ -281,6 +277,8 @@ const FinTechHub = () => {
                   {opportunity.type}
                 </span>
               </div>
+              <h3 className="opportunity-title">{opportunity.title}</h3>
+              <p className="company">{opportunity.company}</p>
             </div>
 
             <div className="card-content">

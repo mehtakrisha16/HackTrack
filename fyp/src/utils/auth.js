@@ -44,9 +44,9 @@ export const authUtils = {
   },
 
   // Login with credentials
-  login: async (credentials) => {
+  login: async (credentials, options = {}) => {
     try {
-      const data = await authAPI.login(credentials);
+      const data = await authAPI.login(credentials, options);
       
       // Store token and user data (cookies are automatically handled by browser)
       localStorage.setItem('token', data.token);
@@ -73,9 +73,9 @@ export const authUtils = {
   },
 
   // Register new user (automatically logs in like LinkedIn)
-  register: async (userData) => {
+  register: async (userData, options = {}) => {
     try {
-      const data = await authAPI.register(userData);
+      const data = await authAPI.register(userData, options);
       
       // Return complete response with token and user for auto-login
       return {

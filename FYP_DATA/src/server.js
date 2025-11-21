@@ -66,8 +66,19 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration for frontend integration
+// Allow the development frontend ports (3000 and 3001) and any FRONTEND_URL set in env
+const allowedFrontendOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3001'];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedFrontendOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    // Otherwise, block the request in development to make CORS issues obvious
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
